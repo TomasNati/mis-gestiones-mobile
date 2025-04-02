@@ -3,11 +3,18 @@ import { FlatList, Text, View } from "react-native";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { MovimientoGastoGrilla } from "@/types/general";
 import { API_DOMAIN, API_URL } from "@/constants/Api";
+import YearMonthPicker from "@/components/YearMonthPicker";
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
   const [desdeMovimientos, setDesdeMovimientos] = useState<Date>(new Date());
   const [movimientos, setMovimientos] = useState<MovimientoGastoGrilla[]>([]);
+
+  const onChange = (year: number, month: number) => {
+    // Create a new date object for the first day of the selected month
+    const newDate = new Date(year, month - 1, 1); // month is 0-indexed
+    setDesdeMovimientos(newDate);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,30 +58,28 @@ export default function Index() {
     fetchData();
   }, [desdeMovimientos]);
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Fetched Data:</Text>
-      <FlatList
-        data={movimientos}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text
-              style={styles.itemTitle}
-            >{`${item.categoria} - ${item.concepto.nombre}`}</Text>
-            <Text>{item.monto}</Text>
-            <Text>{item.tipoDeGasto}</Text>
-          </View>
-        )}
-      />
+      <YearMonthPicker onChange={onChange} />
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      ) : (
+        <FlatList
+          data={movimientos}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.item}>
+              <Text
+                style={styles.itemTitle}
+              >{`${item.categoria} - ${item.concepto.nombre}`}</Text>
+              <Text>{item.monto}</Text>
+              <Text>{item.tipoDeGasto}</Text>
+            </View>
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -91,9 +96,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 16,
+    marginBottom: 10,
   },
   item: {
     marginBottom: 16,
