@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, Text, TextInput, View } from "react-native";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { MovimientoGastoGrilla } from "@/types/general";
 import { API_DOMAIN, API_URL } from "@/constants/Api";
@@ -9,6 +9,10 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [desdeMovimientos, setDesdeMovimientos] = useState<Date>(new Date());
   const [movimientos, setMovimientos] = useState<MovimientoGastoGrilla[]>([]);
+  const [filteredMovimientos, setFilteredMovimientos] = useState<
+    MovimientoGastoGrilla[]
+  >([]);
+  const [filter, setFilter] = useState("");
 
   const onChange = (year: number, month: number) => {
     // Create a new date object for the first day of the selected month
@@ -48,6 +52,7 @@ export default function Index() {
         );
         const json: MovimientoGastoGrilla[] = await response.json();
         setMovimientos(json); // Set the fetched data
+        setFilteredMovimientos(json); // Initialize filtered data
       } catch (error) {
         console.error(error);
       } finally {
@@ -58,27 +63,62 @@ export default function Index() {
     fetchData();
   }, [desdeMovimientos]);
 
+  const handleFilterChange = (text: string) => {
+    setFilter(text);
+    const filtered = movimientos.filter(
+      (item) =>
+        item.categoria.toLowerCase().includes(text.toLowerCase()) ||
+        item.concepto.nombre.toLowerCase().includes(text.toLowerCase()) ||
+        item.tipoDeGasto.toLowerCase().includes(text.toLowerCase())
+    );
+    setFilteredMovimientos(filtered);
+  };
+
   return (
     <View style={styles.container}>
       <YearMonthPicker onChange={onChange} />
+      <TextInput
+        style={styles.filterInput}
+        placeholder="Filtrar por categoría, concepto o tipo de gasto"
+        value={filter}
+        onChangeText={handleFilterChange}
+      />
       {loading ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
       ) : (
-        <FlatList
-          data={movimientos}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.item}>
-              <Text
-                style={styles.itemTitle}
-              >{`${item.categoria} - ${item.concepto.nombre}`}</Text>
-              <Text>{item.monto}</Text>
-              <Text>{item.tipoDeGasto}</Text>
-            </View>
-          )}
-        />
+        <View style={styles.tableContainer}>
+          {/* Table Headers */}
+          <View style={styles.tableHeader}>
+            <Text style={[styles.tableHeaderText, styles.columnDia]}>Día</Text>
+            <Text style={[styles.tableHeaderText, styles.columnConcepto]}>
+              Concepto
+            </Text>
+            <Text style={[styles.tableHeaderText, styles.columnMonto]}>
+              Monto
+            </Text>
+          </View>
+
+          {/* Table Rows */}
+          <FlatList
+            data={filteredMovimientos}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableCell, styles.columnDia]}>
+                  {new Date(item.fecha).getDate()}
+                </Text>
+                <Text style={[styles.tableCell, styles.columnConcepto]}>
+                  {item.concepto.nombre}
+                </Text>
+                <Text style={[styles.tableCell, styles.columnMonto]}>
+                  {item.monto}
+                </Text>
+              </View>
+            )}
+          />
+        </View>
       )}
     </View>
   );
@@ -95,19 +135,47 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
+  tableContainer: {
+    flex: 1, // Allow the FlatList to take up remaining space and enable scrolling
   },
-  item: {
-    marginBottom: 16,
-    padding: 16,
-    backgroundColor: "#f9f9f9",
+  filterInput: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
     borderRadius: 8,
+    paddingHorizontal: 8,
+    marginBottom: 16,
   },
-  itemTitle: {
-    fontSize: 18,
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: "#f0f0f0",
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  tableHeaderText: {
     fontWeight: "bold",
+    fontSize: 14,
+  },
+  tableRow: {
+    flexDirection: "row",
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
+  tableCell: {
+    fontSize: 14,
+  },
+  columnDia: {
+    flex: 1, // Adjust width for category column
+  },
+  columnConcepto: {
+    flex: 3, // Adjust width for concept column
+  },
+  columnMonto: {
+    flex: 1, // Adjust width for amount column
+    textAlign: "right",
   },
 });
