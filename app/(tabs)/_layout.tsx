@@ -2,9 +2,9 @@ import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
 
-import { HapticTab } from "@/components/HapticTab";
-import TabBarBackground from "@/components/TabBarBackground";
-import { Colors } from "@/constants/Colors";
+import { HapticTab } from "@/lib/components/HapticTab";
+import TabBarBackground from "@/lib/components/TabBarBackground";
+import { Colors } from "@/lib/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function TabLayout() {

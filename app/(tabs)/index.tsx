@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { FlatList, Text, TextInput, View } from "react-native";
 import { ActivityIndicator, StyleSheet } from "react-native";
-import { MovimientoGastoGrilla } from "@/types/general";
-import { API_DOMAIN, API_URL } from "@/constants/Api";
-import YearMonthPicker from "@/components/YearMonthPicker";
+import { MovimientoGastoGrilla } from "@/lib/types/general";
+import { API_DOMAIN, API_URL } from "@/lib/constants/Api";
+import YearMonthPicker from "@/lib/components/YearMonthPicker";
+import { transformNumberToCurrenty } from "@/lib/helpers";
+import { fetch } from "expo/fetch";
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
@@ -44,12 +46,11 @@ export default function Index() {
           `${API_URL}/movimientos?desde=${desde}&hasta=${hasta}`,
           {
             method: "GET",
-            headers: {
-              host: API_DOMAIN,
-              accept: "*/*",
-            },
           }
         );
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
         const json: MovimientoGastoGrilla[] = await response.json();
         setMovimientos(json); // Set the fetched data
         setFilteredMovimientos(json); // Initialize filtered data
@@ -113,7 +114,7 @@ export default function Index() {
                   {item.concepto.nombre}
                 </Text>
                 <Text style={[styles.tableCell, styles.columnMonto]}>
-                  {item.monto}
+                  {transformNumberToCurrenty(item.monto)}
                 </Text>
               </View>
             )}
@@ -169,13 +170,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   columnDia: {
-    flex: 1, // Adjust width for category column
+    flex: 0.5, // Adjust width for category column
   },
   columnConcepto: {
-    flex: 3, // Adjust width for concept column
+    flex: 2.5, // Adjust width for concept column
   },
   columnMonto: {
-    flex: 1, // Adjust width for amount column
+    flex: 2, // Adjust width for amount column
     textAlign: "right",
   },
 });

@@ -76,11 +76,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   yearPicker: {
-    width: 80, // Fixed width for the year picker
-    height: 50,
+    width: 120, // Fixed width for the year picker
+    height: 55,
   },
   monthPicker: {
     flex: 1, // Allow the month picker to take up remaining space
-    height: 50,
+    height: 55,
   },
 });
