@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { FlatList, Text, TextInput, View } from "react-native";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { MovimientoGastoGrilla } from "@/lib/types/general";
-import { API_DOMAIN, API_URL } from "@/lib/constants/Api";
+import { API_URL } from "@/lib/constants/Api";
 import YearMonthPicker from "@/lib/components/YearMonthPicker";
 import { transformNumberToCurrenty } from "@/lib/helpers";
 import { fetch } from "expo/fetch";
+import MontoColumn from "@/lib/components/MontoColumn";
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
@@ -17,21 +18,18 @@ export default function Index() {
   const [filter, setFilter] = useState("");
 
   const onChange = (year: number, month: number) => {
-    // Create a new date object for the first day of the selected month
     const newDate = new Date(year, month - 1, 1); // month is 0-indexed
     setDesdeMovimientos(newDate);
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Start loading
+      setLoading(true);
 
-      // Create the "desde" string for the first day of the month
       const desde = `${desdeMovimientos.getFullYear()}-${String(
         desdeMovimientos.getMonth() + 1
       ).padStart(2, "0")}-01`;
 
-      // Create the "hasta" string for the last day of the month
       const lastDay = new Date(
         desdeMovimientos.getFullYear(),
         desdeMovimientos.getMonth() + 1,
@@ -52,12 +50,12 @@ export default function Index() {
           throw new Error("Network response was not ok");
         }
         const json: MovimientoGastoGrilla[] = await response.json();
-        setMovimientos(json); // Set the fetched data
-        setFilteredMovimientos(json); // Initialize filtered data
+        setMovimientos(json);
+        setFilteredMovimientos(json);
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false);
       }
     };
 
@@ -68,11 +66,18 @@ export default function Index() {
     setFilter(text);
     const filtered = movimientos.filter(
       (item) =>
-        item.categoria.toLowerCase().includes(text.toLowerCase()) ||
-        item.concepto.nombre.toLowerCase().includes(text.toLowerCase()) ||
+        getMovimientoDescription(item)
+          .toLowerCase()
+          .includes(text.toLowerCase()) ||
         item.tipoDeGasto.toLowerCase().includes(text.toLowerCase())
     );
     setFilteredMovimientos(filtered);
+  };
+
+  const getMovimientoDescription = (movimiento: MovimientoGastoGrilla) => {
+    const { categoria, concepto, tipoDeGasto } = movimiento;
+    const categoriaPrefix = categoria.slice(0, 2).toUpperCase();
+    return `(${categoriaPrefix}) ${concepto.nombre}`;
   };
 
   return (
@@ -111,11 +116,11 @@ export default function Index() {
                   {new Date(item.fecha).getDate()}
                 </Text>
                 <Text style={[styles.tableCell, styles.columnConcepto]}>
-                  {item.concepto.nombre}
+                  {getMovimientoDescription(item)}
                 </Text>
-                <Text style={[styles.tableCell, styles.columnMonto]}>
-                  {transformNumberToCurrenty(item.monto)}
-                </Text>
+                <View style={[styles.columnMonto]}>
+                  <MontoColumn movimiento={item} />
+                </View>
               </View>
             )}
           />
@@ -170,13 +175,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   columnDia: {
-    flex: 0.5, // Adjust width for category column
+    flex: 1, // Adjust width for category column
   },
   columnConcepto: {
-    flex: 2.5, // Adjust width for concept column
+    flex: 5, // Adjust width for concept column
   },
   columnMonto: {
-    flex: 2, // Adjust width for amount column
+    flex: 2.8, // Adjust width for amount column
     textAlign: "right",
   },
 });
