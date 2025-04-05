@@ -10,9 +10,9 @@ import { ActivityIndicator, StyleSheet } from "react-native";
 import { MovimientoGastoGrilla } from "@/lib/types/general";
 import { API_URL } from "@/lib/constants/Api";
 import YearMonthPicker from "@/lib/components/YearMonthPicker";
-import { transformNumberToCurrenty } from "@/lib/helpers";
 import { fetch } from "expo/fetch";
 import { FilaMovimiento } from "@/lib/components/FilaMovimiento";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
@@ -88,7 +88,11 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <YearMonthPicker onChange={onChange} />
+      <View style={styles.header}>
+        <YearMonthPicker onChange={onChange} />
+        <MaterialIcons name="add" size={24} color="black" />
+      </View>
+
       <TextInput
         style={styles.filterInput}
         placeholder="Filtrar por categoría, concepto o tipo de gasto"
@@ -139,6 +143,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  header: {
+    flexDirection: "row", // Arrange items in a row
+    alignItems: "center", // Center items vertically
+    justifyContent: "space-between", // Space between YearMonthPicker and Add icon
+    marginBottom: 16,
+  },
+  yearMonthPicker: {
+    flex: 1, // Take up all remaining space
   },
   tableContainer: {
     flex: 1, // Allow the FlatList to take up remaining space and enable scrolling
