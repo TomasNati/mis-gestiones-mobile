@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
-import { FlatList, Text, TextInput, View } from "react-native";
+import {
+  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { MovimientoGastoGrilla } from "@/lib/types/general";
 import { API_URL } from "@/lib/constants/Api";
 import YearMonthPicker from "@/lib/components/YearMonthPicker";
 import { transformNumberToCurrenty } from "@/lib/helpers";
 import { fetch } from "expo/fetch";
-import MontoColumn from "@/lib/components/MontoColumn";
+import { FilaMovimiento } from "@/lib/components/FilaMovimiento";
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
@@ -109,19 +115,12 @@ export default function Index() {
           {/* Table Rows */}
           <FlatList
             data={filteredMovimientos}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableCell, styles.columnDia]}>
-                  {new Date(item.fecha).getDate()}
-                </Text>
-                <Text style={[styles.tableCell, styles.columnConcepto]}>
-                  {getMovimientoDescription(item)}
-                </Text>
-                <View style={[styles.columnMonto]}>
-                  <MontoColumn movimiento={item} />
-                </View>
-              </View>
+              <FilaMovimiento
+                movimiento={item}
+                getMovimientoDescription={getMovimientoDescription}
+              />
             )}
           />
         </View>
@@ -162,16 +161,6 @@ const styles = StyleSheet.create({
   },
   tableHeaderText: {
     fontWeight: "bold",
-    fontSize: 14,
-  },
-  tableRow: {
-    flexDirection: "row",
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  tableCell: {
     fontSize: 14,
   },
   columnDia: {
