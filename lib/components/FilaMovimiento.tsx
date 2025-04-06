@@ -35,9 +35,8 @@ export const FilaMovimiento = ({
       </TouchableOpacity>
       {expandedRow && (
         <View style={styles.expandedRow}>
-          <Text>Categoria: {movimiento.categoria}</Text>
-          <Text>Tipo de Gasto: {movimiento.tipoDeGasto}</Text>
-          <Text>Comentarios: {movimiento.comentarios}</Text>
+          <Text>{`${movimiento.categoria} - ${movimiento.tipoDeGasto}`}</Text>
+          <Text style={styles.comentarios}>{movimiento.comentarios}</Text>
         </View>
       )}
     </>
@@ -70,5 +69,10 @@ const styles = StyleSheet.create({
     padding: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
+  },
+  comentarios: {
+    fontSize: 16,
+    color: "#555",
+    marginTop: 4,
   },
 });

@@ -147,8 +147,7 @@ export default function Index() {
   };
 
   const handleSaveMovimiento = (data: {
-    categoria: CategoriaUIMovimiento;
-    concepto: string;
+    concepto: CategoriaUIMovimiento;
     monto: string;
   }) => {
     console.log("New Movimiento:", data);
@@ -226,6 +225,7 @@ const styles = StyleSheet.create({
     alignItems: "center", // Center items vertically
     justifyContent: "space-between", // Space between YearMonthPicker and Add icon
     marginBottom: 16,
+    marginTop: 16,
   },
   yearMonthPicker: {
     flex: 1, // Take up all remaining space

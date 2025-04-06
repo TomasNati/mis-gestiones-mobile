@@ -29,6 +29,35 @@ const agruparCategoriasPorNombre = (
   return categoriasAgrupadas;
 };
 
+const createConceptoPickerItems = (
+  categoriasAgrupadas: CategoriaUIMovimientoGroup[]
+) => {
+  const items: React.ReactNode[] = [];
+
+  categoriasAgrupadas.forEach((group) => {
+    items.push(
+      <Picker.Item
+        key={group.group}
+        label={`-------- ${group.group.toUpperCase()} --------`}
+        value={null}
+        enabled={false} // Disable selection for the header
+        style={styles.groupHeader}
+      />
+    );
+
+    group.categorias.forEach((categoria) => {
+      items.push(
+        <Picker.Item
+          key={categoria.id}
+          label={categoria.nombre}
+          value={categoria}
+        />
+      );
+    });
+  });
+  return items;
+};
+
 interface ConceptoPickerProps {
   categoriasDeMovimiento: CategoriaUIMovimiento[];
   conceptoInicial?: CategoriaUIMovimiento | null;
@@ -73,25 +102,7 @@ export const ConceptoPicker = ({
         onValueChange={handleValueChange}
         style={styles.picker}
       >
-        {categoriasAgrupadas.map((group, groupIndex) => (
-          <React.Fragment key={groupIndex}>
-            {/* Group Header */}
-            <Picker.Item
-              label={`-------- ${group.group.toUpperCase()} --------`}
-              value={null}
-              enabled={false} // Disable selection for the header
-              style={styles.groupHeader}
-            />
-            {/* Group Items */}
-            {group.categorias.map((categoria) => (
-              <Picker.Item
-                key={categoria.id}
-                label={categoria.nombre}
-                value={categoria}
-              />
-            ))}
-          </React.Fragment>
-        ))}
+        {createConceptoPickerItems(categoriasAgrupadas)}
       </Picker>
     </View>
   );
@@ -114,7 +125,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   picker: {
-    height: 40,
     width: "100%",
   },
   groupHeader: {

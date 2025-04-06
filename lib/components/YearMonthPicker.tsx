@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { MaterialIcons } from "@expo/vector-icons";
 
 interface YearMonthPickerProps {
   onChange: (year: number, month: number) => void; // Callback to pass selected year and month
@@ -72,26 +71,16 @@ export default function YearMonthPicker({ onChange }: YearMonthPickerProps) {
             <Picker.Item key={index} label={month} value={index + 1} />
           ))}
         </Picker>
-        <MaterialIcons
-          name="edit-calendar"
-          size={24}
-          color="black"
-          onPress={() => onToggleEditView()}
-        />
       </View>
     );
   }
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 16 }}>
-        {`${selectedYear} - ${months[selectedMonth - 1]}`}
-      </Text>
-      <MaterialIcons
-        name="edit-calendar"
-        size={24}
-        color="black"
-        onPress={() => onToggleEditView()}
-      />
+      <TouchableOpacity onPress={onToggleEditView}>
+        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+          {`${selectedYear} - ${months[selectedMonth - 1]}`}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -108,10 +97,8 @@ const styles = StyleSheet.create({
   },
   yearPicker: {
     width: 120, // Fixed width for the year picker
-    height: 55,
   },
   monthPicker: {
     flex: 1, // Allow the month picker to take up remaining space
-    height: 55,
   },
 });
