@@ -13,6 +13,27 @@ import YearMonthPicker from "@/lib/components/YearMonthPicker";
 import { fetch } from "expo/fetch";
 import { FilaMovimiento } from "@/lib/components/FilaMovimiento";
 import { MaterialIcons } from "@expo/vector-icons";
+import { EditarMovimientoModal } from "@/lib/components/EditarMovimiento";
+
+// Helper function to calculate "desde" and "hasta"
+const calculateDateRange = (date: Date) => {
+  const desde = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-01`;
+
+  const lastDay = new Date(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    0
+  ).getDate();
+  const hasta = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(lastDay).padStart(2, "0")}`;
+
+  return { desde, hasta };
+};
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
@@ -22,28 +43,14 @@ export default function Index() {
     MovimientoGastoGrilla[]
   >([]);
   const [filter, setFilter] = useState("");
-
-  const onChange = (year: number, month: number) => {
-    const newDate = new Date(year, month - 1, 1); // month is 0-indexed
-    setDesdeMovimientos(newDate);
-  };
+  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
 
-      const desde = `${desdeMovimientos.getFullYear()}-${String(
-        desdeMovimientos.getMonth() + 1
-      ).padStart(2, "0")}-01`;
-
-      const lastDay = new Date(
-        desdeMovimientos.getFullYear(),
-        desdeMovimientos.getMonth() + 1,
-        0
-      ).getDate();
-      const hasta = `${desdeMovimientos.getFullYear()}-${String(
-        desdeMovimientos.getMonth() + 1
-      ).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+      // Use the helper function to calculate "desde" and "hasta"
+      const { desde, hasta } = calculateDateRange(desdeMovimientos);
 
       try {
         const response = await fetch(
@@ -55,9 +62,19 @@ export default function Index() {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const json: MovimientoGastoGrilla[] = await response.json();
-        setMovimientos(json);
-        setFilteredMovimientos(json);
+        const movimientos: MovimientoGastoGrilla[] = await response.json();
+        const movimientosNoCredito = movimientos.filter(
+          (movimiento) => movimiento.tipoDeGasto.toString() !== "Credito"
+        );
+        const movimientosCredito = movimientos.filter(
+          (movimiento) => movimiento.tipoDeGasto.toString() === "Credito"
+        );
+        const movimientosOrdenados = [
+          ...movimientosNoCredito,
+          ...movimientosCredito,
+        ];
+        setMovimientos(movimientosOrdenados);
+        setFilteredMovimientos(movimientosOrdenados);
       } catch (error) {
         console.error(error);
       } finally {
@@ -67,6 +84,11 @@ export default function Index() {
 
     fetchData();
   }, [desdeMovimientos]);
+
+  const onChange = (year: number, month: number) => {
+    const newDate = new Date(year, month - 1, 1); // month is 0-indexed
+    setDesdeMovimientos(newDate);
+  };
 
   const handleFilterChange = (text: string) => {
     setFilter(text);
@@ -86,11 +108,30 @@ export default function Index() {
     return `(${categoriaPrefix}) ${concepto.nombre}`;
   };
 
+  const handleAddPress = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleSaveMovimiento = (data: {
+    categoria: string;
+    concepto: string;
+    monto: string;
+  }) => {
+    console.log("New Movimiento:", data);
+    // Add logic to save the new movimiento
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <YearMonthPicker onChange={onChange} />
-        <MaterialIcons name="add" size={24} color="black" />
+        <TouchableOpacity onPress={handleAddPress}>
+          <MaterialIcons name="add" size={24} color="black" />
+        </TouchableOpacity>
       </View>
 
       <TextInput
@@ -129,6 +170,11 @@ export default function Index() {
           />
         </View>
       )}
+      <EditarMovimientoModal
+        visible={isModalVisible}
+        onClose={handleModalClose}
+        onSave={handleSaveMovimiento}
+      />
     </View>
   );
 }
