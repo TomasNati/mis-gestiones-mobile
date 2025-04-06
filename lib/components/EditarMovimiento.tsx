@@ -7,12 +7,15 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { CategoriaUIMovimiento } from "../types/general";
 
 interface AddMovimientoModalProps {
   visible: boolean;
+  categoriasDeMovimiento: CategoriaUIMovimiento[];
   onClose: () => void;
   onSave: (data: {
-    categoria: string;
+    categoria: CategoriaUIMovimiento;
     concepto: string;
     monto: string;
   }) => void;
@@ -20,19 +23,29 @@ interface AddMovimientoModalProps {
 
 export const EditarMovimientoModal = ({
   visible,
+  categoriasDeMovimiento,
   onClose,
   onSave,
 }: AddMovimientoModalProps) => {
-  const [categoria, setCategoria] = React.useState("");
+  const [categoria, setCategoria] =
+    React.useState<CategoriaUIMovimiento | null>(null);
   const [concepto, setConcepto] = React.useState("");
   const [monto, setMonto] = React.useState("");
 
   const handleSave = () => {
+    if (!categoria || !concepto || !monto) {
+      alert("Por favor completa todos los campos.");
+      return;
+    }
     onSave({ categoria, concepto, monto });
-    setCategoria("");
+    setCategoria(null);
     setConcepto("");
     setMonto("");
     onClose();
+  };
+
+  const onCategoriaChanged = (itemValue: CategoriaUIMovimiento) => {
+    setCategoria(itemValue);
   };
 
   return (
@@ -40,12 +53,18 @@ export const EditarMovimientoModal = ({
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.title}>Agregar Movimiento</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Categoría"
-            value={categoria}
-            onChangeText={setCategoria}
-          />
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={categoria || undefined}
+              onValueChange={onCategoriaChanged}
+              style={styles.picker}
+            >
+              <Picker.Item label="Selecciona una categoría" value={null} />
+              {categoriasDeMovimiento.map((cat) => (
+                <Picker.Item key={cat.id} label={cat.nombre} value={cat} />
+              ))}
+            </Picker>
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Concepto"
@@ -96,6 +115,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 16,
     textAlign: "center",
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    marginBottom: 16,
+    overflow: "hidden",
+  },
+  picker: {
+    height: 40,
+    width: "100%",
   },
   input: {
     height: 40,

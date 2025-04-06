@@ -7,7 +7,10 @@ import {
   View,
 } from "react-native";
 import { ActivityIndicator, StyleSheet } from "react-native";
-import { MovimientoGastoGrilla } from "@/lib/types/general";
+import {
+  CategoriaUIMovimiento,
+  MovimientoGastoGrilla,
+} from "@/lib/types/general";
 import { API_URL } from "@/lib/constants/Api";
 import YearMonthPicker from "@/lib/components/YearMonthPicker";
 import { fetch } from "expo/fetch";
@@ -44,6 +47,9 @@ export default function Index() {
   >([]);
   const [filter, setFilter] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
+  const [categoriasDeMovimientos, setCategoriasDeMovimientos] = useState<
+    CategoriaUIMovimiento[]
+  >([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -85,6 +91,30 @@ export default function Index() {
     fetchData();
   }, [desdeMovimientos]);
 
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/conceptos-movimientos`, {
+          method: "GET",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch categorias");
+        }
+
+        const categorias: CategoriaUIMovimiento[] = await response.json();
+        setCategoriasDeMovimientos(categorias);
+      } catch (error) {
+        console.error("Error fetching categorias:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategorias();
+  }, []);
+
   const onChange = (year: number, month: number) => {
     const newDate = new Date(year, month - 1, 1); // month is 0-indexed
     setDesdeMovimientos(newDate);
@@ -117,7 +147,7 @@ export default function Index() {
   };
 
   const handleSaveMovimiento = (data: {
-    categoria: string;
+    categoria: CategoriaUIMovimiento;
     concepto: string;
     monto: string;
   }) => {
@@ -172,6 +202,7 @@ export default function Index() {
       )}
       <EditarMovimientoModal
         visible={isModalVisible}
+        categoriasDeMovimiento={categoriasDeMovimientos}
         onClose={handleModalClose}
         onSave={handleSaveMovimiento}
       />
