@@ -26,6 +26,11 @@ export type CategoriaUIMovimiento = {
   detalleSubcategoriaId?: string;
 };
 
+export type CategoriaUIMovimientoGroup = {
+  group: string;
+  categorias: CategoriaUIMovimiento[];
+};
+
 export type MovimientoGastoGrilla = {
   id: string;
   comentarios?: string;
