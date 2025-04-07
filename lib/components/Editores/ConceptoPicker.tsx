@@ -4,7 +4,7 @@ import { Picker } from "@react-native-picker/picker";
 import {
   CategoriaUIMovimiento,
   CategoriaUIMovimientoGroup,
-} from "../types/general";
+} from "../../types/general";
 
 const agruparCategoriasPorNombre = (
   categorias: CategoriaUIMovimiento[]
@@ -121,7 +121,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    marginBottom: 16,
     overflow: "hidden",
   },
   picker: {

@@ -7,14 +7,20 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { CategoriaUIMovimiento } from "../types/general";
-import { ConceptoPicker } from "./ConceptoPicker";
+import { CategoriaUIMovimiento, TipoDeMovimientoGasto } from "../types/general";
+import { ConceptoPicker } from "./Editores/ConceptoPicker";
+import { TipoDePago } from "./Editores/TipoDePago";
 
 interface AddMovimientoModalProps {
   visible: boolean;
   categoriasDeMovimiento: CategoriaUIMovimiento[];
   onClose: () => void;
-  onSave: (data: { concepto: CategoriaUIMovimiento; monto: string }) => void;
+  onSave: (data: {
+    concepto: CategoriaUIMovimiento;
+    monto: string;
+    tipoDePago: TipoDeMovimientoGasto;
+    comentarios: string;
+  }) => void;
 }
 
 export const EditarMovimientoModal = ({
@@ -27,15 +33,21 @@ export const EditarMovimientoModal = ({
     null
   );
   const [monto, setMonto] = React.useState("");
+  const [tipoDePago, setTipoDePago] = React.useState<TipoDeMovimientoGasto>(
+    TipoDeMovimientoGasto.Efectivo
+  );
+  const [comentarios, setComentarios] = React.useState(""); // New state for Comentarios
 
   const handleSave = () => {
     if (!concepto || !monto) {
       alert("Por favor completa todos los campos.");
       return;
     }
-    onSave({ concepto, monto });
+    onSave({ concepto, monto, tipoDePago, comentarios }); // Include comentarios in the save data
     setConcepto(null);
+    setTipoDePago(TipoDeMovimientoGasto.Efectivo);
     setMonto("");
+    setComentarios(""); // Reset comentarios
     onClose();
   };
 
@@ -43,23 +55,57 @@ export const EditarMovimientoModal = ({
     setConcepto(itemValue);
   };
 
+  const onTipoDePagoChanged = (tipoDePago: TipoDeMovimientoGasto) => {
+    setTipoDePago(tipoDePago);
+  };
+
   return (
     <Modal visible={visible} transparent={true} animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.title}>Agregar Movimiento</Text>
-          <ConceptoPicker
-            categoriasDeMovimiento={categoriasDeMovimiento}
-            conceptoInicial={concepto}
-            onConceptoModificado={onConceptoChanged}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Monto"
-            value={monto}
-            onChangeText={setMonto}
-            keyboardType="numeric"
-          />
+
+          {/* Concepto Picker */}
+          <View style={styles.inputContainer}>
+            <ConceptoPicker
+              categoriasDeMovimiento={categoriasDeMovimiento}
+              conceptoInicial={concepto}
+              onConceptoModificado={onConceptoChanged}
+            />
+          </View>
+
+          {/* Tipo de Pago */}
+          <View style={styles.inputContainer}>
+            <TipoDePago
+              tipoDePagoInicial={tipoDePago}
+              onTipoDePagoChange={onTipoDePagoChanged}
+            />
+          </View>
+
+          {/* Monto Input */}
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Monto"
+              value={monto}
+              onChangeText={setMonto}
+              keyboardType="phone-pad"
+            />
+          </View>
+
+          {/* Comentarios Input */}
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, styles.textArea]} // Add textArea style
+              placeholder="Comentarios"
+              value={comentarios}
+              onChangeText={setComentarios}
+              multiline={true} // Enable multiline for text area
+              numberOfLines={4} // Set the number of visible lines
+            />
+          </View>
+
+          {/* Buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={handleSave}>
               <Text style={styles.buttonText}>Guardar</Text>
@@ -98,13 +144,19 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: "center",
   },
+  inputContainer: {
+    marginBottom: 16, // Add spacing between inputs
+  },
   input: {
     height: 40,
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 8,
-    marginBottom: 16,
+  },
+  textArea: {
+    height: 80, // Set height for the text area
+    textAlignVertical: "top", // Align text to the top
   },
   buttonContainer: {
     flexDirection: "row",

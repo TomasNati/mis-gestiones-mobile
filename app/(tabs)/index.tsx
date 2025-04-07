@@ -10,6 +10,7 @@ import { ActivityIndicator, StyleSheet } from "react-native";
 import {
   CategoriaUIMovimiento,
   MovimientoGastoGrilla,
+  TipoDeMovimientoGasto,
 } from "@/lib/types/general";
 import { API_URL } from "@/lib/constants/Api";
 import YearMonthPicker from "@/lib/components/YearMonthPicker";
@@ -148,7 +149,9 @@ export default function Index() {
 
   const handleSaveMovimiento = (data: {
     concepto: CategoriaUIMovimiento;
+    tipoDePago: TipoDeMovimientoGasto;
     monto: string;
+    comentarios: string;
   }) => {
     console.log("New Movimiento:", data);
     // Add logic to save the new movimiento
