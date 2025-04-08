@@ -7,7 +7,11 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { CategoriaUIMovimiento, TipoDeMovimientoGasto } from "../types/general";
+import {
+  CategoriaUIMovimiento,
+  MovimientoGastoGrilla,
+  TipoDeMovimientoGasto,
+} from "../types/general";
 import { ConceptoPicker } from "./Editores/ConceptoPicker";
 import { TipoDePago } from "./Editores/TipoDePago";
 import { Monto } from "./Editores/Monto";
@@ -15,6 +19,7 @@ import { Monto } from "./Editores/Monto";
 interface AddMovimientoModalProps {
   visible: boolean;
   categoriasDeMovimiento: CategoriaUIMovimiento[];
+  movimiento: MovimientoGastoGrilla | null;
   onClose: () => void;
   onSave: (data: {
     concepto: CategoriaUIMovimiento;
@@ -27,17 +32,20 @@ interface AddMovimientoModalProps {
 export const EditarMovimientoModal = ({
   visible,
   categoriasDeMovimiento,
+  movimiento,
   onClose,
   onSave,
 }: AddMovimientoModalProps) => {
   const [concepto, setConcepto] = React.useState<CategoriaUIMovimiento | null>(
-    null
+    movimiento?.concepto || null
   );
-  const [monto, setMonto] = React.useState("");
+  const [monto, setMonto] = React.useState(movimiento?.monto?.toString() || ""); // Initialize with movimiento value
   const [tipoDePago, setTipoDePago] = React.useState<TipoDeMovimientoGasto>(
-    TipoDeMovimientoGasto.Efectivo
+    movimiento?.tipoDeGasto || TipoDeMovimientoGasto.Efectivo
   );
-  const [comentarios, setComentarios] = React.useState(""); // New state for Comentarios
+  const [comentarios, setComentarios] = React.useState(
+    movimiento?.comentarios || ""
+  ); // New state for Comentarios
 
   const handleSave = () => {
     if (!concepto || !monto) {

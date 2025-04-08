@@ -51,6 +51,8 @@ export default function Index() {
   const [categoriasDeMovimientos, setCategoriasDeMovimientos] = useState<
     CategoriaUIMovimiento[]
   >([]);
+  const [selectedMovimiento, setSelectedMovimiento] =
+    useState<MovimientoGastoGrilla | null>(null); // State for selected movimiento
 
   useEffect(() => {
     const fetchData = async () => {
@@ -157,12 +159,25 @@ export default function Index() {
     // Add logic to save the new movimiento
   };
 
+  const handleEditarMovimiento = (movimiento: MovimientoGastoGrilla) => {
+    setSelectedMovimiento(movimiento);
+    setIsModalVisible(true);
+  };
+
+  const handleDeleteMovimiento = (movimiento: MovimientoGastoGrilla) => {
+    // Logic to delete the movimiento
+    console.log("Delete Movimiento:", movimiento);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <YearMonthPicker onChange={onChange} />
-        <TouchableOpacity onPress={handleAddPress}>
-          <MaterialIcons name="add" size={24} color="black" />
+        <TouchableOpacity
+          style={styles.addButtonBackground} // Apply the new background style
+          onPress={handleAddPress}
+        >
+          <MaterialIcons name="add" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
 
@@ -197,6 +212,8 @@ export default function Index() {
               <FilaMovimiento
                 movimiento={item}
                 getMovimientoDescription={getMovimientoDescription}
+                onEditMovimiento={handleEditarMovimiento}
+                onDeleteMovimiento={handleDeleteMovimiento}
               />
             )}
           />
@@ -207,6 +224,7 @@ export default function Index() {
         categoriasDeMovimiento={categoriasDeMovimientos}
         onClose={handleModalClose}
         onSave={handleSaveMovimiento}
+        movimiento={selectedMovimiento} // Pass the selected movimiento data here
       />
     </View>
   );
@@ -265,5 +283,12 @@ const styles = StyleSheet.create({
   columnMonto: {
     flex: 2.8, // Adjust width for amount column
     textAlign: "right",
+  },
+  addButtonBackground: {
+    backgroundColor: "#007BFF", // Blue background for the Add button
+    borderRadius: 50, // Make it circular
+    padding: 12, // Add padding around the icon
+    alignItems: "center", // Center the icon
+    justifyContent: "center", // Center the icon
   },
 });
