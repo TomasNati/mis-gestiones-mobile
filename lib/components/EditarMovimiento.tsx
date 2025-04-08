@@ -10,6 +10,7 @@ import {
 import { CategoriaUIMovimiento, TipoDeMovimientoGasto } from "../types/general";
 import { ConceptoPicker } from "./Editores/ConceptoPicker";
 import { TipoDePago } from "./Editores/TipoDePago";
+import { Monto } from "./Editores/Monto";
 
 interface AddMovimientoModalProps {
   visible: boolean;
@@ -59,6 +60,10 @@ export const EditarMovimientoModal = ({
     setTipoDePago(tipoDePago);
   };
 
+  const onMontoChanged = (monto: number | null) => {
+    setMonto(monto?.toString() || ""); // Convert to string for TextInput
+  };
+
   return (
     <Modal visible={visible} transparent={true} animationType="slide">
       <View style={styles.overlay}>
@@ -84,12 +89,9 @@ export const EditarMovimientoModal = ({
 
           {/* Monto Input */}
           <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Monto"
-              value={monto}
-              onChangeText={setMonto}
-              keyboardType="phone-pad"
+            <Monto
+              initialValue={monto}
+              onValueChange={onMontoChanged} // Pass the callback to handle changes
             />
           </View>
 
