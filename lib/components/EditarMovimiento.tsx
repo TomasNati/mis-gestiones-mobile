@@ -63,16 +63,25 @@ export const EditarMovimientoModal = ({
     setComentarios(movimiento?.comentarios || ""); // Set initial value for Comentarios
   }, [movimiento]);
 
+  const clearMovimientoProperties = () => {
+    setConcepto(null);
+    setMonto("");
+    setTipoDePago(TipoDeMovimientoGasto.Efectivo);
+    setComentarios(""); // Reset Comentarios
+  };
+
   const handleSave = () => {
     if (!concepto || !monto) {
       alert("Por favor completa todos los campos.");
       return;
     }
     onSave({ concepto, monto, tipoDePago, comentarios }); // Include comentarios in the save data
-    setConcepto(null);
-    setTipoDePago(TipoDeMovimientoGasto.Efectivo);
-    setMonto("");
-    setComentarios(""); // Reset comentarios
+    clearMovimientoProperties();
+    onClose();
+  };
+
+  const handleCancel = () => {
+    clearMovimientoProperties();
     onClose();
   };
 
@@ -136,7 +145,7 @@ export const EditarMovimientoModal = ({
             <TouchableOpacity style={styles.button} onPress={handleSave}>
               <Text style={styles.buttonText}>Guardar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={onClose}>
+            <TouchableOpacity style={styles.button} onPress={handleCancel}>
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
