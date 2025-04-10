@@ -47,6 +47,22 @@ export const EditarMovimientoModal = ({
     movimiento?.comentarios || ""
   ); // New state for Comentarios
 
+  React.useEffect(() => {
+    if (movimiento?.concepto) {
+      const conceptoElegido = categoriasDeMovimiento.find(
+        (cat) => cat.id === movimiento.concepto.id
+      );
+      if (conceptoElegido) {
+        setConcepto(conceptoElegido);
+      }
+    } else {
+      setConcepto(null);
+    }
+    setMonto(movimiento?.monto?.toString() || "");
+    setTipoDePago(movimiento?.tipoDeGasto || TipoDeMovimientoGasto.Efectivo);
+    setComentarios(movimiento?.comentarios || ""); // Set initial value for Comentarios
+  }, [movimiento]);
+
   const handleSave = () => {
     if (!concepto || !monto) {
       alert("Por favor completa todos los campos.");

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TextInput } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import {
@@ -72,6 +72,10 @@ export const ConceptoPicker = ({
   const [selectedValue, setSelectedValue] =
     React.useState<CategoriaUIMovimiento | null>(conceptoInicial || null);
   const [filterText, setFilterText] = useState("");
+
+  useEffect(() => {
+    setSelectedValue(conceptoInicial || null);
+  }, [conceptoInicial]);
 
   const categoriasAgrupadas = agruparCategoriasPorNombre(categoriasDeMovimiento)
     .map((group) => ({
