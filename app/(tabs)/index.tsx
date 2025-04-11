@@ -18,6 +18,7 @@ import { fetch } from "expo/fetch";
 import { FilaMovimiento } from "@/lib/components/FilaMovimiento";
 import { MaterialIcons } from "@expo/vector-icons";
 import { EditarMovimientoModal } from "@/lib/components/EditarMovimiento";
+import { MovimientoPayload } from "@/lib/types/api";
 
 // Helper function to calculate "desde" and "hasta"
 const calculateDateRange = (date: Date) => {
@@ -141,7 +142,8 @@ export default function Index() {
     return `(${categoriaPrefix}) ${concepto.nombre}`;
   };
 
-  const handleAddPress = () => {
+  const handleAgregarMovimiento = () => {
+    setSelectedMovimiento(null);
     setIsModalVisible(true);
   };
 
@@ -155,8 +157,24 @@ export default function Index() {
     monto: string;
     comentarios: string;
   }) => {
-    console.log("New Movimiento:", data);
-    // Add logic to save the new movimiento
+    const payload: MovimientoPayload = {
+      id: selectedMovimiento?.id,
+      fecha: new Date(
+        desdeMovimientos.getFullYear(),
+        desdeMovimientos.getMonth(),
+        1
+      ),
+      subcategoriaId: data.concepto.subcategoriaId,
+      detalleSubcategoriaId: data.concepto.detalleSubcategoriaId,
+      tipoDeGasto: data.tipoDePago,
+      monto: parseFloat(data.monto.replace(",", ".")),
+      comentarios: data.comentarios,
+    };
+
+    // Logic to save the movimiento
+    console.log("Save Movimiento:", payload);
+    setIsModalVisible(false);
+    setSelectedMovimiento(null); // Clear selected movimiento after saving
   };
 
   const handleEditarMovimiento = (movimiento: MovimientoGastoGrilla) => {
@@ -175,7 +193,7 @@ export default function Index() {
         <YearMonthPicker onChange={onChange} />
         <TouchableOpacity
           style={styles.addButtonBackground} // Apply the new background style
-          onPress={handleAddPress}
+          onPress={handleAgregarMovimiento}
         >
           <MaterialIcons name="add" size={24} color="#fff" />
         </TouchableOpacity>
