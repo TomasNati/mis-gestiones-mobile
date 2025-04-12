@@ -156,13 +156,14 @@ export default function Index() {
     tipoDePago: TipoDeMovimientoGasto;
     monto: string;
     comentarios: string;
+    dia: number;
   }) => {
     const payload: MovimientoPayload = {
       id: selectedMovimiento?.id,
       fecha: new Date(
         desdeMovimientos.getFullYear(),
         desdeMovimientos.getMonth(),
-        1
+        data.dia
       ),
       subcategoriaId: data.concepto.subcategoriaId,
       detalleSubcategoriaId: data.concepto.detalleSubcategoriaId,
@@ -242,7 +243,8 @@ export default function Index() {
         categoriasDeMovimiento={categoriasDeMovimientos}
         onClose={handleModalClose}
         onSave={handleSaveMovimiento}
-        movimiento={selectedMovimiento} // Pass the selected movimiento data here
+        movimiento={selectedMovimiento}
+        date={desdeMovimientos}
       />
     </View>
   );

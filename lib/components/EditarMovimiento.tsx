@@ -15,17 +15,21 @@ import {
 import { ConceptoPicker } from "./Editores/ConceptoPicker";
 import { TipoDePago } from "./Editores/TipoDePago";
 import { Monto } from "./Editores/Monto";
+import { obtenerDiasEnElMes } from "@/lib/helpers";
+import { Picker } from "@react-native-picker/picker";
 
 interface AddMovimientoModalProps {
   visible: boolean;
   categoriasDeMovimiento: CategoriaUIMovimiento[];
   movimiento: MovimientoGastoGrilla | null;
+  date: Date;
   onClose: () => void;
   onSave: (data: {
     concepto: CategoriaUIMovimiento;
     monto: string;
     tipoDePago: TipoDeMovimientoGasto;
     comentarios: string;
+    dia: number; // Add the selected day
   }) => void;
 }
 
@@ -33,6 +37,7 @@ export const EditarMovimientoModal = ({
   visible,
   categoriasDeMovimiento,
   movimiento,
+  date,
   onClose,
   onSave,
 }: AddMovimientoModalProps) => {
@@ -45,7 +50,12 @@ export const EditarMovimientoModal = ({
   );
   const [comentarios, setComentarios] = React.useState(
     movimiento?.comentarios || ""
-  ); // New state for Comentarios
+  );
+  const [dia, setDia] = React.useState<number>(
+    movimiento?.fecha ? new Date(movimiento.fecha).getDate() : 1
+  ); // Default to the first day of the month
+
+  const diasEnElMes = obtenerDiasEnElMes(date); // Get the number of days in the month
 
   React.useEffect(() => {
     if (movimiento?.concepto) {
@@ -60,14 +70,16 @@ export const EditarMovimientoModal = ({
     }
     setMonto(movimiento?.monto?.toString() || "");
     setTipoDePago(movimiento?.tipoDeGasto || TipoDeMovimientoGasto.Efectivo);
-    setComentarios(movimiento?.comentarios || ""); // Set initial value for Comentarios
+    setComentarios(movimiento?.comentarios || "");
+    setDia(movimiento?.fecha ? new Date(movimiento.fecha).getDate() : 1);
   }, [movimiento]);
 
   const clearMovimientoProperties = () => {
     setConcepto(null);
     setMonto("");
     setTipoDePago(TipoDeMovimientoGasto.Efectivo);
-    setComentarios(""); // Reset Comentarios
+    setComentarios("");
+    setDia(1);
   };
 
   const handleSave = () => {
@@ -75,7 +87,7 @@ export const EditarMovimientoModal = ({
       alert("Por favor completa todos los campos.");
       return;
     }
-    onSave({ concepto, monto, tipoDePago, comentarios }); // Include comentarios in the save data
+    onSave({ concepto, monto, tipoDePago, comentarios, dia }); // Include the selected day
     clearMovimientoProperties();
     onClose();
   };
@@ -101,7 +113,7 @@ export const EditarMovimientoModal = ({
     <Modal visible={visible} transparent={true} animationType="slide">
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>Agregar Movimiento</Text>
+          <Text style={styles.title}>Editar Movimiento</Text>
 
           {/* Concepto Picker */}
           <View style={styles.inputContainer}>
@@ -131,13 +143,29 @@ export const EditarMovimientoModal = ({
           {/* Comentarios Input */}
           <View style={styles.inputContainer}>
             <TextInput
-              style={[styles.input, styles.textArea]} // Add textArea style
+              style={[styles.input, styles.textArea]}
               placeholder="Comentarios"
               value={comentarios}
               onChangeText={setComentarios}
-              multiline={true} // Enable multiline for text area
-              numberOfLines={4} // Set the number of visible lines
+              multiline={true}
+              numberOfLines={4}
             />
+          </View>
+
+          {/* Number Picker for Day */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Día del Movimiento</Text>
+            <Picker
+              selectedValue={dia}
+              onValueChange={(itemValue) => setDia(itemValue)}
+              style={styles.picker}
+            >
+              {Array.from({ length: diasEnElMes }, (_, i) => i + 1).map(
+                (day) => (
+                  <Picker.Item key={day} label={day.toString()} value={day} />
+                )
+              )}
+            </Picker>
           </View>
 
           {/* Buttons */}
@@ -180,7 +208,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   inputContainer: {
-    marginBottom: 16, // Add spacing between inputs
+    marginBottom: 16,
   },
   input: {
     height: 40,
@@ -190,8 +218,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   textArea: {
-    height: 80, // Set height for the text area
-    textAlignVertical: "top", // Align text to the top
+    height: 80,
+    textAlignVertical: "top",
+  },
+  label: {
+    fontSize: 14,
+    marginBottom: 8,
+    color: "#555",
+  },
+  picker: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
   },
   buttonContainer: {
     flexDirection: "row",
