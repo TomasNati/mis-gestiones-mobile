@@ -151,7 +151,7 @@ export default function Index() {
     setIsModalVisible(false);
   };
 
-  const handleSaveMovimiento = (data: {
+  const handleSaveMovimiento = async (data: {
     concepto: CategoriaUIMovimiento;
     tipoDePago: TipoDeMovimientoGasto;
     monto: string;
@@ -172,10 +172,53 @@ export default function Index() {
       comentarios: data.comentarios,
     };
 
-    // Logic to save the movimiento
-    console.log("Save Movimiento:", payload);
-    setIsModalVisible(false);
-    setSelectedMovimiento(null); // Clear selected movimiento after saving
+    setLoading(true); // Set loading to true while waiting for the response
+    try {
+      const method = selectedMovimiento ? "PUT" : "POST"; // Use PUT for update, POST for create
+      const response = await fetch(`${API_URL}/finanzas/movimiento`, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${method === "POST" ? "create" : "update"} movimiento`
+        );
+      }
+
+      const result = await response.json();
+      console.log(
+        `${method === "POST" ? "Created" : "Updated"} Movimiento:`,
+        result
+      );
+
+      // Refresh the list of movimientos after saving
+      const { desde, hasta } = calculateDateRange(desdeMovimientos);
+      const refreshResponse = await fetch(
+        `${API_URL}/movimientos?desde=${desde}&hasta=${hasta}`,
+        {
+          method: "GET",
+        }
+      );
+      if (!refreshResponse.ok) {
+        throw new Error("Failed to refresh movimientos");
+      }
+      const refreshedMovimientos: MovimientoGastoGrilla[] =
+        await refreshResponse.json();
+      setMovimientos(refreshedMovimientos);
+      setFilteredMovimientos(refreshedMovimientos);
+
+      setIsModalVisible(false); // Close the modal after saving
+      setSelectedMovimiento(null); // Clear selected movimiento after saving
+    } catch (error) {
+      console.error("Error saving movimiento:", error);
+      alert("Ocurrió un error al guardar el movimiento. Inténtalo de nuevo.");
+    } finally {
+      setLoading(false); // Set loading to false after the operation
+    }
   };
 
   const handleEditarMovimiento = (movimiento: MovimientoGastoGrilla) => {
