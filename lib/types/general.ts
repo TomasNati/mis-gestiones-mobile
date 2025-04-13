@@ -42,5 +42,4 @@ export type MovimientoGastoGrilla = {
   tipoDeGasto: TipoDeMovimientoGasto;
   monto: number;
   state?: EstadoUIMovimiento;
-  updated?: boolean;
 };

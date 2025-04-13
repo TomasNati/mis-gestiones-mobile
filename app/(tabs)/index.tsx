@@ -166,7 +166,8 @@ export default function Index() {
     const movimientoAActualizar: MovimientoGastoGrilla = {
       ...(selectedMovimiento || {}),
       id: selectedMovimiento?.id || generateUUID(),
-      state: selectedMovimiento?.state || "added",
+      state:
+        selectedMovimiento?.state || (selectedMovimiento ? "updated" : "added"),
       categoria: data.concepto.categoriaNombre,
       tipoDeGasto: data.tipoDePago,
       concepto: data.concepto,
@@ -177,7 +178,6 @@ export default function Index() {
         desdeMovimientos.getMonth(),
         data.dia
       ),
-      updated: true,
     };
 
     let nuevosMovimientos = [];
@@ -251,8 +251,17 @@ export default function Index() {
   };
 
   const handleDeleteMovimiento = (movimiento: MovimientoGastoGrilla) => {
-    // Logic to delete the movimiento
-    console.log("Delete Movimiento:", movimiento);
+    const updatedMovimientos = movimientos.find(
+      (mov) => mov.id === movimiento.id
+    );
+    if (updatedMovimientos) {
+      updatedMovimientos.state = "deleted";
+      const newMovimientos = movimientos.map((mov) =>
+        mov.id === movimiento.id ? updatedMovimientos : mov
+      );
+      setMovimientos(newMovimientos);
+      setFilteredMovimientos(newMovimientos);
+    }
   };
 
   const handleSaveUnsavedMovimientos = () => {

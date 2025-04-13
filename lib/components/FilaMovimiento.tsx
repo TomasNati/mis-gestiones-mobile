@@ -1,22 +1,22 @@
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { MovimientoGastoGrilla } from "@/lib/types/general";
-import { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Alert } from "react-native";
 import MontoColumn from "@/lib/components/MontoColumn";
-import { MaterialIcons } from "@expo/vector-icons"; // Import Material Icons
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface FilaMovimientoProps {
   movimiento: MovimientoGastoGrilla;
   getMovimientoDescription: (movimiento: MovimientoGastoGrilla) => string;
-  onEditMovimiento: (movimiento: MovimientoGastoGrilla) => void; // New prop for editing
-  onDeleteMovimiento: (movimiento: MovimientoGastoGrilla) => void; // New prop for deletion
+  onEditMovimiento: (movimiento: MovimientoGastoGrilla) => void;
+  onDeleteMovimiento: (movimiento: MovimientoGastoGrilla) => void;
 }
 
-export const FilaMovimiento = ({
+export const FilaMovimiento: React.FC<FilaMovimientoProps> = ({
   movimiento,
   getMovimientoDescription,
   onEditMovimiento,
   onDeleteMovimiento,
-}: FilaMovimientoProps) => {
+}) => {
   const [expandedRow, setExpandedRow] = useState(false);
 
   const handleRowPress = () => {
@@ -32,10 +32,23 @@ export const FilaMovimiento = ({
         {
           text: "Eliminar",
           style: "destructive",
-          onPress: () => onDeleteMovimiento(movimiento), // Call the delete prop
+          onPress: () => onDeleteMovimiento(movimiento),
         },
       ]
     );
+  };
+
+  const getBorderColor = () => {
+    switch (movimiento.state) {
+      case "deleted":
+        return "#FF3B30";
+      case "updated":
+        return "#FFCC00";
+      case "added":
+        return "#4CD964";
+      default:
+        return "transparent";
+    }
   };
 
   return (
@@ -44,7 +57,11 @@ export const FilaMovimiento = ({
         onPress={() => handleRowPress()}
         style={[
           styles.tableRow,
-          expandedRow && styles.tableRowExpanded, // Apply expanded style if expandedRow is true
+          expandedRow && styles.tableRowExpanded,
+          {
+            borderColor: getBorderColor(),
+            borderWidth: movimiento.state ? 2 : 0,
+          },
         ]}
       >
         <Text style={[styles.tableCell, styles.columnDia]}>
@@ -62,14 +79,12 @@ export const FilaMovimiento = ({
           <Text>{`${movimiento.categoria} - ${movimiento.tipoDeGasto}`}</Text>
           <Text style={styles.comentarios}>{movimiento.comentarios}</Text>
           <View style={styles.actionButtons}>
-            {/* Edit Button */}
             <TouchableOpacity
               style={[styles.editButton, styles.editButtonBackground]}
               onPress={() => onEditMovimiento(movimiento)}
             >
               <MaterialIcons name="edit" size={18} color="#fff" />
             </TouchableOpacity>
-            {/* Delete Button */}
             <TouchableOpacity
               style={[styles.deleteButton, styles.deleteButtonBackground]}
               onPress={handleDeletePress}
@@ -92,19 +107,19 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   tableRowExpanded: {
-    backgroundColor: "rgb(185 214 243);", // Highlighted background color when expanded
+    backgroundColor: "rgb(185 214 243);",
   },
   tableCell: {
     fontSize: 14,
   },
   columnDia: {
-    flex: 1, // Adjust width for category column
+    flex: 1,
   },
   columnConcepto: {
-    flex: 5, // Adjust width for concept column
+    flex: 5,
   },
   columnMonto: {
-    flex: 2.8, // Adjust width for amount column
+    flex: 2.8,
     textAlign: "right",
   },
   expandedRow: {
@@ -120,15 +135,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   actionButtons: {
-    flexDirection: "row", // Arrange buttons in a row
-    justifyContent: "flex-end", // Align buttons to the right
+    flexDirection: "row",
+    justifyContent: "flex-end",
     marginTop: 8,
   },
   editButton: {
-    marginRight: 8, // Add spacing between buttons
+    marginRight: 8,
   },
   editButtonBackground: {
-    backgroundColor: "#007BFF", // Blue background for the edit button
+    backgroundColor: "#007BFF",
     borderRadius: 8,
     padding: 8,
     alignItems: "center",
@@ -136,7 +151,7 @@ const styles = StyleSheet.create({
   },
   deleteButton: {},
   deleteButtonBackground: {
-    backgroundColor: "#FF3B30", // Red background for the delete button
+    backgroundColor: "#FF3B30",
     borderRadius: 8,
     padding: 8,
     alignItems: "center",
