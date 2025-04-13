@@ -31,6 +31,8 @@ export type CategoriaUIMovimientoGroup = {
   categorias: CategoriaUIMovimiento[];
 };
 
+export type EstadoUIMovimiento = "deleted" | "updated" | "added";
+
 export type MovimientoGastoGrilla = {
   id: string;
   comentarios?: string;
@@ -39,5 +41,6 @@ export type MovimientoGastoGrilla = {
   concepto: CategoriaUIMovimiento;
   tipoDeGasto: TipoDeMovimientoGasto;
   monto: number;
-  isNew?: boolean;
+  state?: EstadoUIMovimiento;
+  updated?: boolean;
 };

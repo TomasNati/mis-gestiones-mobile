@@ -227,7 +227,6 @@ const styles = StyleSheet.create({
     color: "#555",
   },
   picker: {
-    height: 40,
     borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,

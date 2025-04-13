@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  FlatList,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Text, TextInput, View } from "react-native";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import {
   CategoriaUIMovimiento,
@@ -13,12 +7,12 @@ import {
   TipoDeMovimientoGasto,
 } from "@/lib/types/general";
 import { API_URL } from "@/lib/constants/Api";
-import YearMonthPicker from "@/lib/components/YearMonthPicker";
 import { fetch } from "expo/fetch";
 import { FilaMovimiento } from "@/lib/components/FilaMovimiento";
-import { MaterialIcons } from "@expo/vector-icons";
 import { EditarMovimientoModal } from "@/lib/components/EditarMovimiento";
 import { MovimientoPayload } from "@/lib/types/api";
+import { MovimientosHeader } from "@/lib/components/MovimientosHeader";
+import { generateUUID } from "@/lib/helpers";
 
 // Helper function to calculate "desde" and "hasta"
 const calculateDateRange = (date: Date) => {
@@ -38,6 +32,26 @@ const calculateDateRange = (date: Date) => {
   )}-${String(lastDay).padStart(2, "0")}`;
 
   return { desde, hasta };
+};
+
+const orderarMovimientos = (
+  movimientos: MovimientoGastoGrilla[]
+): MovimientoGastoGrilla[] => {
+  // Order by fecha descending
+  movimientos.sort((a, b) => {
+    const fechaA = new Date(a.fecha);
+    const fechaB = new Date(b.fecha);
+    return fechaB.getTime() - fechaA.getTime();
+  });
+
+  const movimientosNoCredito = movimientos.filter(
+    (movimiento) => movimiento.tipoDeGasto.toString() !== "Credito"
+  );
+  const movimientosCredito = movimientos.filter(
+    (movimiento) => movimiento.tipoDeGasto.toString() === "Credito"
+  );
+  const movimientosOrdenados = [...movimientosNoCredito, ...movimientosCredito];
+  return movimientosOrdenados;
 };
 
 export default function Index() {
@@ -73,16 +87,7 @@ export default function Index() {
           throw new Error("Network response was not ok");
         }
         const movimientos: MovimientoGastoGrilla[] = await response.json();
-        const movimientosNoCredito = movimientos.filter(
-          (movimiento) => movimiento.tipoDeGasto.toString() !== "Credito"
-        );
-        const movimientosCredito = movimientos.filter(
-          (movimiento) => movimiento.tipoDeGasto.toString() === "Credito"
-        );
-        const movimientosOrdenados = [
-          ...movimientosNoCredito,
-          ...movimientosCredito,
-        ];
+        const movimientosOrdenados = orderarMovimientos(movimientos);
         setMovimientos(movimientosOrdenados);
         setFilteredMovimientos(movimientosOrdenados);
       } catch (error) {
@@ -119,7 +124,7 @@ export default function Index() {
     fetchCategorias();
   }, []);
 
-  const onChange = (year: number, month: number) => {
+  const onYearMonthChanged = (year: number, month: number) => {
     const newDate = new Date(year, month - 1, 1); // month is 0-indexed
     setDesdeMovimientos(newDate);
   };
@@ -158,20 +163,39 @@ export default function Index() {
     comentarios: string;
     dia: number;
   }) => {
-    const payload: MovimientoPayload = {
-      id: selectedMovimiento?.id,
+    const movimientoAActualizar: MovimientoGastoGrilla = {
+      ...(selectedMovimiento || {}),
+      id: selectedMovimiento?.id || generateUUID(),
+      state: selectedMovimiento?.state || "added",
+      categoria: data.concepto.categoriaNombre,
+      tipoDeGasto: data.tipoDePago,
+      concepto: data.concepto,
+      monto: parseFloat(data.monto.replace(",", ".")),
+      comentarios: data.comentarios,
       fecha: new Date(
         desdeMovimientos.getFullYear(),
         desdeMovimientos.getMonth(),
         data.dia
       ),
-      subcategoriaId: data.concepto.subcategoriaId,
-      detalleSubcategoriaId: data.concepto.detalleSubcategoriaId,
-      tipoDeGasto: data.tipoDePago,
-      monto: parseFloat(data.monto.replace(",", ".")),
-      comentarios: data.comentarios,
+      updated: true,
     };
 
+    let nuevosMovimientos = [];
+
+    if (selectedMovimiento) {
+      nuevosMovimientos = movimientos.map((movimiento) =>
+        movimiento.id === movimientoAActualizar.id
+          ? movimientoAActualizar
+          : movimiento
+      );
+    } else {
+      nuevosMovimientos = [movimientoAActualizar, ...movimientos];
+    }
+
+    nuevosMovimientos = orderarMovimientos(nuevosMovimientos);
+    setMovimientos(nuevosMovimientos);
+    setFilteredMovimientos(nuevosMovimientos);
+    /*
     setLoading(true); // Set loading to true while waiting for the response
     try {
       const method = selectedMovimiento ? "PUT" : "POST"; // Use PUT for update, POST for create
@@ -218,7 +242,7 @@ export default function Index() {
       alert("Ocurrió un error al guardar el movimiento. Inténtalo de nuevo.");
     } finally {
       setLoading(false); // Set loading to false after the operation
-    }
+    }*/
   };
 
   const handleEditarMovimiento = (movimiento: MovimientoGastoGrilla) => {
@@ -231,18 +255,23 @@ export default function Index() {
     console.log("Delete Movimiento:", movimiento);
   };
 
+  const handleSaveUnsavedMovimientos = () => {
+    console.log("Save unsaved movimientos");
+    // Logic to save unsaved movimientos
+  };
+
+  const movimientosSinGuardar = movimientos.filter(
+    (movimiento) => movimiento.state
+  ).length;
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <YearMonthPicker onChange={onChange} />
-        <TouchableOpacity
-          style={styles.addButtonBackground} // Apply the new background style
-          onPress={handleAgregarMovimiento}
-        >
-          <MaterialIcons name="add" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
-
+      <MovimientosHeader
+        onAddMovimiento={handleAgregarMovimiento}
+        onYearMonthChanged={onYearMonthChanged}
+        onSaveUnsavedMovimientos={handleSaveUnsavedMovimientos}
+        amountUnsavedMovimientos={movimientosSinGuardar}
+      />
       <TextInput
         style={styles.filterInput}
         placeholder="Filtrar por categoría, concepto o tipo de gasto"
@@ -303,16 +332,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  header: {
-    flexDirection: "row", // Arrange items in a row
-    alignItems: "center", // Center items vertically
-    justifyContent: "space-between", // Space between YearMonthPicker and Add icon
-    marginBottom: 16,
-    marginTop: 16,
-  },
-  yearMonthPicker: {
-    flex: 1, // Take up all remaining space
   },
   tableContainer: {
     flex: 1, // Allow the FlatList to take up remaining space and enable scrolling
