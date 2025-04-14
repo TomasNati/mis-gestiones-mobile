@@ -7,6 +7,7 @@ interface MovimientosHeaderProps {
   onYearMonthChanged: (year: number, month: number) => void;
   onAddMovimiento: () => void;
   onSaveUnsavedMovimientos: () => void;
+  onDiscardUnsavedMovimientos: () => void;
   amountUnsavedMovimientos?: number;
 }
 
@@ -14,6 +15,7 @@ export const MovimientosHeader: React.FC<MovimientosHeaderProps> = ({
   onYearMonthChanged,
   onAddMovimiento,
   onSaveUnsavedMovimientos,
+  onDiscardUnsavedMovimientos,
   amountUnsavedMovimientos,
 }) => {
   const hasUnsavedMovimientos =
@@ -23,6 +25,16 @@ export const MovimientosHeader: React.FC<MovimientosHeaderProps> = ({
     <View style={styles.header}>
       <YearMonthPicker onChange={onYearMonthChanged} />
       <View style={styles.buttonContainer}>
+        {/* Discard Button */}
+        {hasUnsavedMovimientos ? (
+          <TouchableOpacity
+            style={styles.discardButton}
+            onPress={onDiscardUnsavedMovimientos}
+          >
+            <MaterialIcons name="undo" size={18} color="#fff" />
+          </TouchableOpacity>
+        ) : null}
+
         {/* Save Button */}
         <TouchableOpacity
           style={[
@@ -32,11 +44,11 @@ export const MovimientosHeader: React.FC<MovimientosHeaderProps> = ({
           onPress={onSaveUnsavedMovimientos}
           disabled={!hasUnsavedMovimientos} // Disable button if no unsaved movimientos
         >
-          {hasUnsavedMovimientos && (
+          {hasUnsavedMovimientos ? (
             <Text style={styles.saveButtonText}>
               ({amountUnsavedMovimientos})
             </Text>
-          )}
+          ) : null}
           <MaterialIcons
             name="save"
             size={18}
@@ -67,6 +79,14 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row", // Arrange buttons in a row
     alignItems: "center", // Center buttons vertically
+  },
+  discardButton: {
+    backgroundColor: "#FF3B30", // Red background for the Discard button
+    borderRadius: 50, // Make it circular
+    padding: 12, // Add padding around the icon
+    alignItems: "center", // Center the icon
+    justifyContent: "center", // Center the icon
+    marginRight: 8, // Add spacing between Discard and Save buttons
   },
   saveButton: {
     flexDirection: "row", // Arrange text and icon in a row

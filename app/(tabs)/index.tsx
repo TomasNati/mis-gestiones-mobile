@@ -68,6 +68,9 @@ export default function Index() {
   >([]);
   const [selectedMovimiento, setSelectedMovimiento] =
     useState<MovimientoGastoGrilla | null>(null); // State for selected movimiento
+  const [originalUpdatedMovimientos, setOriginalUpdatedMovimientos] = useState<
+    MovimientoGastoGrilla[]
+  >([]); // State for original updated movimientos
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,6 +93,7 @@ export default function Index() {
         const movimientosOrdenados = orderarMovimientos(movimientos);
         setMovimientos(movimientosOrdenados);
         setFilteredMovimientos(movimientosOrdenados);
+        setOriginalUpdatedMovimientos([]);
       } catch (error) {
         console.error(error);
       } finally {
@@ -183,6 +187,18 @@ export default function Index() {
     let nuevosMovimientos = [];
 
     if (selectedMovimiento) {
+      if (
+        !(movimientoAActualizar.state == "added") &&
+        !originalUpdatedMovimientos.find(
+          (mov) => mov.id === selectedMovimiento.id
+        )
+      ) {
+        setOriginalUpdatedMovimientos((prev) => [
+          ...prev,
+          { ...selectedMovimiento },
+        ]);
+      }
+
       nuevosMovimientos = movimientos.map((movimiento) =>
         movimiento.id === movimientoAActualizar.id
           ? movimientoAActualizar
@@ -251,13 +267,20 @@ export default function Index() {
   };
 
   const handleDeleteMovimiento = (movimiento: MovimientoGastoGrilla) => {
-    const updatedMovimientos = movimientos.find(
+    const updatedMovimiento = movimientos.find(
       (mov) => mov.id === movimiento.id
     );
-    if (updatedMovimientos) {
-      updatedMovimientos.state = "deleted";
+    if (updatedMovimiento) {
+      if (!originalUpdatedMovimientos.find((mov) => mov.id === movimiento.id)) {
+        setOriginalUpdatedMovimientos((prev) => [
+          ...prev,
+          { ...updatedMovimiento },
+        ]);
+      }
+
+      updatedMovimiento.state = "deleted";
       const newMovimientos = movimientos.map((mov) =>
-        mov.id === movimiento.id ? updatedMovimientos : mov
+        mov.id === movimiento.id ? updatedMovimiento : mov
       );
       setMovimientos(newMovimientos);
       setFilteredMovimientos(newMovimientos);
@@ -267,6 +290,23 @@ export default function Index() {
   const handleSaveUnsavedMovimientos = () => {
     console.log("Save unsaved movimientos");
     // Logic to save unsaved movimientos
+  };
+
+  const handleDiscardUnsavedMovimientos = () => {
+    let updatedMovimientos = movimientos.filter(
+      (movimiento) => movimiento.state !== "added"
+    );
+
+    updatedMovimientos = updatedMovimientos.map((movimiento) => {
+      const originalMovimiento = originalUpdatedMovimientos.find(
+        (mov) => mov.id === movimiento.id
+      );
+      return originalMovimiento || movimiento;
+    });
+
+    setOriginalUpdatedMovimientos([]);
+    setMovimientos(updatedMovimientos);
+    setFilteredMovimientos(updatedMovimientos);
   };
 
   const movimientosSinGuardar = movimientos.filter(
@@ -279,6 +319,7 @@ export default function Index() {
         onAddMovimiento={handleAgregarMovimiento}
         onYearMonthChanged={onYearMonthChanged}
         onSaveUnsavedMovimientos={handleSaveUnsavedMovimientos}
+        onDiscardUnsavedMovimientos={handleDiscardUnsavedMovimientos}
         amountUnsavedMovimientos={movimientosSinGuardar}
       />
       <TextInput
