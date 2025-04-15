@@ -4,6 +4,7 @@ import { ActivityIndicator, StyleSheet } from "react-native";
 import {
   CategoriaUIMovimiento,
   MovimientoGastoGrilla,
+  PersistirMovimientoGasto,
   TipoDeMovimientoGasto,
 } from "@/lib/types/general";
 import { API_URL } from "@/lib/constants/Api";
@@ -211,54 +212,6 @@ export default function Index() {
     nuevosMovimientos = orderarMovimientos(nuevosMovimientos);
     setMovimientos(nuevosMovimientos);
     setFilteredMovimientos(nuevosMovimientos);
-    /*
-    setLoading(true); // Set loading to true while waiting for the response
-    try {
-      const method = selectedMovimiento ? "PUT" : "POST"; // Use PUT for update, POST for create
-      const response = await fetch(`${API_URL}/finanzas/movimiento`, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to ${method === "POST" ? "create" : "update"} movimiento`
-        );
-      }
-
-      const result = await response.json();
-      console.log(
-        `${method === "POST" ? "Created" : "Updated"} Movimiento:`,
-        result
-      );
-
-      // Refresh the list of movimientos after saving
-      const { desde, hasta } = calculateDateRange(desdeMovimientos);
-      const refreshResponse = await fetch(
-        `${API_URL}/movimientos?desde=${desde}&hasta=${hasta}`,
-        {
-          method: "GET",
-        }
-      );
-      if (!refreshResponse.ok) {
-        throw new Error("Failed to refresh movimientos");
-      }
-      const refreshedMovimientos: MovimientoGastoGrilla[] =
-        await refreshResponse.json();
-      setMovimientos(refreshedMovimientos);
-      setFilteredMovimientos(refreshedMovimientos);
-
-      setIsModalVisible(false); // Close the modal after saving
-      setSelectedMovimiento(null); // Clear selected movimiento after saving
-    } catch (error) {
-      console.error("Error saving movimiento:", error);
-      alert("Ocurrió un error al guardar el movimiento. Inténtalo de nuevo.");
-    } finally {
-      setLoading(false); // Set loading to false after the operation
-    }*/
   };
 
   const handleEditarMovimiento = (movimiento: MovimientoGastoGrilla) => {
@@ -287,9 +240,80 @@ export default function Index() {
     }
   };
 
-  const handleSaveUnsavedMovimientos = () => {
-    console.log("Save unsaved movimientos");
-    // Logic to save unsaved movimientos
+  const handleSaveUnsavedMovimientos = async () => {
+    setLoading(true); // Set loading to true while waiting for the response
+    try {
+      // 1. Get all movimientos where state has a value
+      const movimientosConEstado = movimientos.filter(
+        (movimiento) => movimiento.state
+      );
+      const response = await fetch(`${API_URL}/finanzas/movimiento-update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(movimientosConEstado),
+      });
+
+      // 3. If the status is not 200, show an error
+      if (!response.ok) {
+        throw new Error(
+          "Error al guardar los movimientos. Inténtalo de nuevo."
+        );
+      }
+
+      // 4. Else, trigger a new search to refresh data
+      const { desde, hasta } = calculateDateRange(desdeMovimientos);
+      const refreshResponse = await fetch(
+        `${API_URL}/movimientos?desde=${desde}&hasta=${hasta}`,
+        {
+          method: "GET",
+        }
+      );
+
+      if (!refreshResponse.ok) {
+        throw new Error("Error al refrescar los movimientos.");
+      }
+
+      const result: PersistirMovimientoGasto = await response.json();
+
+      const errors: string[] = [];
+
+      if (result.added && !result.added.exitoso) {
+        errors.push(...result.added.errores);
+      }
+
+      if (result.updated) {
+        result.updated.forEach((updateResult) => {
+          if (!updateResult.exitoso) {
+            errors.push(...updateResult.errores);
+          }
+        });
+      }
+
+      if (result.deleted && !result.deleted.exitoso) {
+        errors.push(...result.deleted.errores);
+      }
+
+      // If there are errors, show them and stop further execution
+      if (errors.length > 0) {
+        alert(`Errores al guardar los movimientos:\n${errors.join("\n")}`);
+        return;
+      }
+
+      const refreshedMovimientos: MovimientoGastoGrilla[] =
+        await refreshResponse.json();
+      setMovimientos(refreshedMovimientos);
+      setFilteredMovimientos(refreshedMovimientos);
+
+      // Clear original updated movimientos
+      setOriginalUpdatedMovimientos([]);
+    } catch (error) {
+      console.error("Error saving movimiento:", error);
+      alert("Ocurrió un error al guardar el movimiento. Inténtalo de nuevo.");
+    } finally {
+      setLoading(false); // Set loading to false after the operation
+    }
   };
 
   const handleDiscardUnsavedMovimientos = () => {

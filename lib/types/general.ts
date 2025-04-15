@@ -43,3 +43,18 @@ export type MovimientoGastoGrilla = {
   monto: number;
   state?: EstadoUIMovimiento;
 };
+
+export type ResultadoAPI = {
+  errores: string[];
+  exitoso: boolean;
+};
+
+export type ResultadoAPICrear = ResultadoAPI & {
+  idsCreados: string[];
+};
+
+export interface PersistirMovimientoGasto {
+  added?: ResultadoAPICrear;
+  updated?: ResultadoAPI[];
+  deleted?: ResultadoAPI;
+}
