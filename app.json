@@ -14,9 +14,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/mios/icons8-logo-512.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.andresaste.misgestionesmobile"
     },
     "web": {
       "bundler": "metro",
@@ -28,7 +29,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/mios/splash.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
@@ -37,6 +38,17 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "9424fdff-cb19-4b11-82b4-0898393f989f"
+      }
+    },
+    "scripts": {
+      "deploy": "eas build --platform android --profile preview"
     }
   }
 }

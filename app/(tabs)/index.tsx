@@ -63,43 +63,66 @@ export default function Index() {
     MovimientoGastoGrilla[]
   >([]);
   const [filter, setFilter] = useState("");
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [categoriasDeMovimientos, setCategoriasDeMovimientos] = useState<
     CategoriaUIMovimiento[]
   >([]);
   const [selectedMovimiento, setSelectedMovimiento] =
-    useState<MovimientoGastoGrilla | null>(null); // State for selected movimiento
+    useState<MovimientoGastoGrilla | null>(null);
   const [originalUpdatedMovimientos, setOriginalUpdatedMovimientos] = useState<
     MovimientoGastoGrilla[]
-  >([]); // State for original updated movimientos
+  >([]);
+
+  const refreshMovimientos = async () => {
+    setLoading(true);
+    const { desde, hasta } = calculateDateRange(desdeMovimientos);
+    try {
+      const response = await fetch(
+        `${API_URL}/movimientos?desde=${desde}&hasta=${hasta}`,
+        {
+          method: "GET",
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const movimientos: MovimientoGastoGrilla[] = await response.json();
+      const movimientosOrdenados = orderarMovimientos(movimientos);
+      setMovimientos(movimientosOrdenados);
+      setFilteredMovimientos(movimientosOrdenados);
+      setOriginalUpdatedMovimientos([]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const consolidateErrors = (result: PersistirMovimientoGasto): string[] => {
+    const errors: string[] = [];
+
+    if (result.added && !result.added.exitoso) {
+      errors.push(...result.added.errores);
+    }
+
+    if (result.updated) {
+      result.updated.forEach((updateResult) => {
+        if (!updateResult.exitoso) {
+          errors.push(...updateResult.errores);
+        }
+      });
+    }
+
+    if (result.deleted && !result.deleted.exitoso) {
+      errors.push(...result.deleted.errores);
+    }
+
+    return errors;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-
-      // Use the helper function to calculate "desde" and "hasta"
-      const { desde, hasta } = calculateDateRange(desdeMovimientos);
-
-      try {
-        const response = await fetch(
-          `${API_URL}/movimientos?desde=${desde}&hasta=${hasta}`,
-          {
-            method: "GET",
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const movimientos: MovimientoGastoGrilla[] = await response.json();
-        const movimientosOrdenados = orderarMovimientos(movimientos);
-        setMovimientos(movimientosOrdenados);
-        setFilteredMovimientos(movimientosOrdenados);
-        setOriginalUpdatedMovimientos([]);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
+      await refreshMovimientos();
     };
 
     fetchData();
@@ -255,64 +278,26 @@ export default function Index() {
         body: JSON.stringify(movimientosConEstado),
       });
 
-      // 3. If the status is not 200, show an error
       if (!response.ok) {
         throw new Error(
           "Error al guardar los movimientos. Inténtalo de nuevo."
         );
       }
 
-      // 4. Else, trigger a new search to refresh data
-      const { desde, hasta } = calculateDateRange(desdeMovimientos);
-      const refreshResponse = await fetch(
-        `${API_URL}/movimientos?desde=${desde}&hasta=${hasta}`,
-        {
-          method: "GET",
-        }
-      );
-
-      if (!refreshResponse.ok) {
-        throw new Error("Error al refrescar los movimientos.");
-      }
-
       const result: PersistirMovimientoGasto = await response.json();
+      const errors = consolidateErrors(result);
 
-      const errors: string[] = [];
-
-      if (result.added && !result.added.exitoso) {
-        errors.push(...result.added.errores);
-      }
-
-      if (result.updated) {
-        result.updated.forEach((updateResult) => {
-          if (!updateResult.exitoso) {
-            errors.push(...updateResult.errores);
-          }
-        });
-      }
-
-      if (result.deleted && !result.deleted.exitoso) {
-        errors.push(...result.deleted.errores);
-      }
-
-      // If there are errors, show them and stop further execution
       if (errors.length > 0) {
         alert(`Errores al guardar los movimientos:\n${errors.join("\n")}`);
         return;
       }
 
-      const refreshedMovimientos: MovimientoGastoGrilla[] =
-        await refreshResponse.json();
-      setMovimientos(refreshedMovimientos);
-      setFilteredMovimientos(refreshedMovimientos);
-
-      // Clear original updated movimientos
-      setOriginalUpdatedMovimientos([]);
+      await refreshMovimientos();
     } catch (error) {
       console.error("Error saving movimiento:", error);
       alert("Ocurrió un error al guardar el movimiento. Inténtalo de nuevo.");
     } finally {
-      setLoading(false); // Set loading to false after the operation
+      setLoading(false);
     }
   };
 
