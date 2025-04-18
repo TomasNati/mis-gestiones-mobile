@@ -1,15 +1,58 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TextInput } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import {
-  CategoriaUIMovimiento,
-  CategoriaUIMovimientoGroup,
-} from "../../types/general";
+import { CategoriaUIMovimiento } from "../../types/general";
+
+type CategoriasAgrupadas = {
+  group: string;
+  categorias: CategoriaUIMovimiento[];
+}[];
+
+const styles = StyleSheet.create({
+  filterInput: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    marginBottom: 8,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  picker: {
+    width: "100%",
+  },
+  groupHeader: {
+    fontWeight: "bold",
+    color: "#555",
+    textAlign: "center", // Center the text
+    paddingVertical: 4, // Add vertical padding
+    textTransform: "uppercase", // Optional: Make the text uppercase
+  },
+  placeholder: {
+    color: "#aaa",
+    fontStyle: "italic",
+  },
+});
+
+const emptyPickerItemValue = (
+  <Picker.Item
+    enabled={false}
+    label="Elige un concepto"
+    value={null}
+    key="empty-value"
+    style={styles.placeholder}
+  />
+);
 
 const agruparCategoriasPorNombre = (
   categorias: CategoriaUIMovimiento[]
-): CategoriaUIMovimientoGroup[] => {
-  const categoriasAgrupadas: CategoriaUIMovimientoGroup[] = [];
+): CategoriasAgrupadas => {
+  const categoriasAgrupadas: CategoriasAgrupadas = [];
 
   categorias.forEach((categoria) => {
     const grupoExistente = categoriasAgrupadas.find(
@@ -30,9 +73,9 @@ const agruparCategoriasPorNombre = (
 };
 
 const createConceptoPickerItems = (
-  categoriasAgrupadas: CategoriaUIMovimientoGroup[]
+  categoriasAgrupadas: CategoriasAgrupadas
 ) => {
-  const items: React.ReactNode[] = [];
+  const items: React.ReactNode[] = [emptyPickerItemValue];
 
   categoriasAgrupadas.forEach((group) => {
     items.push(
@@ -72,20 +115,35 @@ export const ConceptoPicker = ({
   const [selectedValue, setSelectedValue] =
     React.useState<CategoriaUIMovimiento | null>(conceptoInicial || null);
   const [filterText, setFilterText] = useState("");
+  const [categoriasAgrupadas, setCategoriasAgrupadas] =
+    useState<CategoriasAgrupadas>([]);
 
   useEffect(() => {
     setSelectedValue(conceptoInicial || null);
   }, [conceptoInicial]);
 
-  const categoriasAgrupadas = agruparCategoriasPorNombre(categoriasDeMovimiento)
-    .map((group) => ({
-      ...group,
-      categorias: group.categorias.filter((categoria) =>
-        categoria.nombre.toLowerCase().includes(filterText.toLowerCase())
-      ),
-    }))
-    .filter((group) => group.categorias.length > 0) // Remove empty groups
-    .sort((a, b) => a.group.localeCompare(b.group));
+  useEffect(() => {
+    const groupedCategorias = agruparCategoriasPorNombre(categoriasDeMovimiento)
+      .map((group) => ({
+        ...group,
+        categorias: group.categorias.filter((categoria) =>
+          categoria.nombre.toLowerCase().includes(filterText.toLowerCase())
+        ),
+      }))
+      .filter((group) => group.categorias.length > 0)
+      .sort((a, b) => a.group.localeCompare(b.group));
+
+    if (
+      groupedCategorias.length === 1 &&
+      groupedCategorias[0].categorias.length === 1
+    ) {
+      handleValueChange(groupedCategorias[0].categorias[0]);
+    } else {
+      setSelectedValue(null);
+    }
+
+    setCategoriasAgrupadas(groupedCategorias);
+  }, [categoriasDeMovimiento, filterText]);
 
   const handleValueChange = (itemValue: CategoriaUIMovimiento) => {
     setSelectedValue(itemValue);
@@ -111,30 +169,3 @@ export const ConceptoPicker = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  filterInput: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    marginBottom: 8,
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-  picker: {
-    width: "100%",
-  },
-  groupHeader: {
-    fontWeight: "bold",
-    color: "#555",
-    textAlign: "center", // Center the text
-    paddingVertical: 4, // Add vertical padding
-    textTransform: "uppercase", // Optional: Make the text uppercase
-  },
-});
