@@ -18,3 +18,9 @@ export type MovimientoPayload = {
   tipoDeGasto?: TipoDeMovimientoGasto;
   monto: number;
 };
+
+export interface PersistirMovimientoGasto {
+  added?: ResultadoAPICrear;
+  updated?: ResultadoAPI[];
+  deleted?: ResultadoAPI;
+}

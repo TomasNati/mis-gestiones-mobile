@@ -9,14 +9,19 @@ import {
 } from "react-native";
 import {
   CategoriaUIMovimiento,
+  MovimientoAEditar,
   MovimientoGastoGrilla,
   TipoDeMovimientoGasto,
-} from "../types/general";
-import { ConceptoPicker } from "./Editores/ConceptoPicker";
-import { TipoDePago } from "./Editores/TipoDePago";
-import { Monto } from "./Editores/Monto";
+} from "../../types/general";
+import { ConceptoPicker } from "../Editores/ConceptoPicker";
+import { TipoDePago } from "../Editores/TipoDePago";
+import { Monto } from "../Editores/Monto";
 import { obtenerDiasEnElMes } from "@/lib/helpers";
 import { Picker } from "@react-native-picker/picker";
+import { styles } from "./EditarMovimiento.styles";
+import { MaterialIcons } from "@expo/vector-icons";
+
+const diaDefault = new Date().getDate();
 
 interface AddMovimientoModalProps {
   visible: boolean;
@@ -24,13 +29,8 @@ interface AddMovimientoModalProps {
   movimiento: MovimientoGastoGrilla | null;
   date: Date;
   onClose: () => void;
-  onSave: (data: {
-    concepto: CategoriaUIMovimiento;
-    monto: string;
-    tipoDePago: TipoDeMovimientoGasto;
-    comentarios: string;
-    dia: number; // Add the selected day
-  }) => void;
+  onAdd: (data: MovimientoAEditar) => void;
+  onSave: (data: MovimientoAEditar) => void;
 }
 
 export const EditarMovimientoModal = ({
@@ -39,6 +39,7 @@ export const EditarMovimientoModal = ({
   movimiento,
   date,
   onClose,
+  onAdd,
   onSave,
 }: AddMovimientoModalProps) => {
   const [concepto, setConcepto] = React.useState<CategoriaUIMovimiento | null>(
@@ -52,8 +53,8 @@ export const EditarMovimientoModal = ({
     movimiento?.comentarios || ""
   );
   const [dia, setDia] = React.useState<number>(
-    movimiento?.fecha ? new Date(movimiento.fecha).getDate() : 1
-  ); // Default to the first day of the month
+    movimiento?.fecha ? new Date(movimiento.fecha).getDate() : diaDefault
+  );
 
   const diasEnElMes = obtenerDiasEnElMes(date); // Get the number of days in the month
 
@@ -71,7 +72,9 @@ export const EditarMovimientoModal = ({
     setMonto(movimiento?.monto?.toString() || "");
     setTipoDePago(movimiento?.tipoDeGasto || TipoDeMovimientoGasto.Efectivo);
     setComentarios(movimiento?.comentarios || "");
-    setDia(movimiento?.fecha ? new Date(movimiento.fecha).getDate() : 1);
+    setDia(
+      movimiento?.fecha ? new Date(movimiento.fecha).getDate() : diaDefault
+    );
   }, [movimiento]);
 
   const clearMovimientoProperties = () => {
@@ -79,15 +82,26 @@ export const EditarMovimientoModal = ({
     setMonto("");
     setTipoDePago(TipoDeMovimientoGasto.Efectivo);
     setComentarios("");
-    setDia(1);
+    setDia(diaDefault);
   };
 
-  const handleSave = () => {
+  const handleSave = (add: boolean = true) => {
     if (!concepto || !monto) {
       alert("Por favor completa todos los campos.");
       return;
     }
-    onSave({ concepto, monto, tipoDePago, comentarios, dia }); // Include the selected day
+    const movimientoAEditar: MovimientoAEditar = {
+      concepto,
+      monto,
+      tipoDePago,
+      comentarios,
+      dia,
+    };
+    if (add) {
+      onAdd(movimientoAEditar);
+    } else {
+      onSave(movimientoAEditar);
+    }
     clearMovimientoProperties();
     onClose();
   };
@@ -170,11 +184,31 @@ export const EditarMovimientoModal = ({
 
           {/* Buttons */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleSave}>
-              <Text style={styles.buttonText}>Guardar</Text>
+            {/* Agregar Button */}
+            <TouchableOpacity
+              style={[styles.button, styles.addButtonBackground]}
+              onPress={() => handleSave(true)}
+            >
+              <MaterialIcons name="save-alt" size={18} color="#fff" />
+              <Text style={styles.buttonText}>Agregar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleCancel}>
+
+            {/* Cancelar Button */}
+            <TouchableOpacity
+              style={[styles.button, styles.cancelButtonBackground]}
+              onPress={handleCancel}
+            >
+              <MaterialIcons name="cancel" size={18} color="#fff" />
               <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+
+            {/* Guardar Button */}
+            <TouchableOpacity
+              style={[styles.button, styles.saveButtonBackground]}
+              onPress={() => handleSave(false)}
+            >
+              <MaterialIcons name="save" size={18} color="#fff" />
+              <Text style={styles.buttonText}>Guardar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -182,69 +216,3 @@ export const EditarMovimientoModal = ({
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContainer: {
-    width: "90%",
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  input: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: "top",
-  },
-  label: {
-    fontSize: 14,
-    marginBottom: 8,
-    color: "#555",
-  },
-  picker: {
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  button: {
-    flex: 1,
-    backgroundColor: "#007BFF",
-    padding: 10,
-    borderRadius: 8,
-    marginHorizontal: 5,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-});

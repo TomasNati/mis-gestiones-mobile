@@ -4,14 +4,13 @@ import { ActivityIndicator, StyleSheet } from "react-native";
 import {
   CategoriaUIMovimiento,
   MovimientoGastoGrilla,
-  PersistirMovimientoGasto,
-  TipoDeMovimientoGasto,
+  MovimientoAEditar,
 } from "@/lib/types/general";
+import { PersistirMovimientoGasto } from "@/lib/types/api";
 import { API_URL } from "@/lib/constants/Api";
 import { fetch } from "expo/fetch";
 import { FilaMovimiento } from "@/lib/components/FilaMovimiento";
-import { EditarMovimientoModal } from "@/lib/components/EditarMovimiento";
-import { MovimientoPayload } from "@/lib/types/api";
+import { EditarMovimientoModal } from "@/lib/components/EditarMovimiento/EditarMovimiento";
 import { MovimientosHeader } from "@/lib/components/MovimientosHeader";
 import { generateUUID } from "@/lib/helpers";
 
@@ -152,6 +151,26 @@ export default function Index() {
     fetchCategorias();
   }, []);
 
+  const crearMovimientoAActualizar = (data: MovimientoAEditar) => {
+    const movimientoAActualizar: MovimientoGastoGrilla = {
+      ...(selectedMovimiento || {}),
+      id: selectedMovimiento?.id || generateUUID(),
+      state:
+        selectedMovimiento?.state || (selectedMovimiento ? "updated" : "added"),
+      categoria: data.concepto.categoriaNombre,
+      tipoDeGasto: data.tipoDePago,
+      concepto: data.concepto,
+      monto: parseFloat(data.monto.replace(",", ".")),
+      comentarios: data.comentarios,
+      fecha: new Date(
+        desdeMovimientos.getFullYear(),
+        desdeMovimientos.getMonth(),
+        data.dia
+      ),
+    };
+    return movimientoAActualizar;
+  };
+
   const onYearMonthChanged = (year: number, month: number) => {
     const newDate = new Date(year, month - 1, 1); // month is 0-indexed
     setDesdeMovimientos(newDate);
@@ -184,29 +203,9 @@ export default function Index() {
     setIsModalVisible(false);
   };
 
-  const handleSaveMovimiento = async (data: {
-    concepto: CategoriaUIMovimiento;
-    tipoDePago: TipoDeMovimientoGasto;
-    monto: string;
-    comentarios: string;
-    dia: number;
-  }) => {
-    const movimientoAActualizar: MovimientoGastoGrilla = {
-      ...(selectedMovimiento || {}),
-      id: selectedMovimiento?.id || generateUUID(),
-      state:
-        selectedMovimiento?.state || (selectedMovimiento ? "updated" : "added"),
-      categoria: data.concepto.categoriaNombre,
-      tipoDeGasto: data.tipoDePago,
-      concepto: data.concepto,
-      monto: parseFloat(data.monto.replace(",", ".")),
-      comentarios: data.comentarios,
-      fecha: new Date(
-        desdeMovimientos.getFullYear(),
-        desdeMovimientos.getMonth(),
-        data.dia
-      ),
-    };
+  const handleAddMovimiento = async (data: MovimientoAEditar) => {
+    const movimientoAActualizar: MovimientoGastoGrilla =
+      crearMovimientoAActualizar(data);
 
     let nuevosMovimientos = [];
 
@@ -263,13 +262,14 @@ export default function Index() {
     }
   };
 
-  const handleSaveUnsavedMovimientos = async () => {
-    setLoading(true); // Set loading to true while waiting for the response
+  const handleSaveUnsavedMovimientos = async (
+    movimientosAActualizar?: MovimientoGastoGrilla[]
+  ) => {
+    setLoading(true);
     try {
-      // 1. Get all movimientos where state has a value
-      const movimientosConEstado = movimientos.filter(
-        (movimiento) => movimiento.state
-      );
+      const movimientosConEstado =
+        movimientosAActualizar ||
+        movimientos.filter((movimiento) => movimiento.state);
       const response = await fetch(`${API_URL}/finanzas/movimiento-update`, {
         method: "POST",
         headers: {
@@ -318,6 +318,13 @@ export default function Index() {
     setFilteredMovimientos(updatedMovimientos);
   };
 
+  const handleSaveMovimiento = (data: MovimientoAEditar) => {
+    const movimientoAActualizar: MovimientoGastoGrilla =
+      crearMovimientoAActualizar(data);
+
+    handleSaveUnsavedMovimientos([movimientoAActualizar]);
+  };
+
   const movimientosSinGuardar = movimientos.filter(
     (movimiento) => movimiento.state
   ).length;
@@ -327,7 +334,7 @@ export default function Index() {
       <MovimientosHeader
         onAddMovimiento={handleAgregarMovimiento}
         onYearMonthChanged={onYearMonthChanged}
-        onSaveUnsavedMovimientos={handleSaveUnsavedMovimientos}
+        onSaveUnsavedMovimientos={() => handleSaveUnsavedMovimientos()}
         onDiscardUnsavedMovimientos={handleDiscardUnsavedMovimientos}
         amountUnsavedMovimientos={movimientosSinGuardar}
       />
@@ -373,6 +380,7 @@ export default function Index() {
         visible={isModalVisible}
         categoriasDeMovimiento={categoriasDeMovimientos}
         onClose={handleModalClose}
+        onAdd={handleAddMovimiento}
         onSave={handleSaveMovimiento}
         movimiento={selectedMovimiento}
         date={desdeMovimientos}
