@@ -1,43 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TextInput } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { CategoriaUIMovimiento } from "../../types/general";
+import { CategoriaUIMovimiento } from "../../../types/general";
+import { styles } from "./ConceptoPicker.styles";
 
 type CategoriasAgrupadas = {
   group: string;
   categorias: CategoriaUIMovimiento[];
 }[];
-
-const styles = StyleSheet.create({
-  filterInput: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    marginBottom: 8,
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-  picker: {
-    width: "100%",
-  },
-  groupHeader: {
-    fontWeight: "bold",
-    color: "#555",
-    textAlign: "center", // Center the text
-    paddingVertical: 4, // Add vertical padding
-    textTransform: "uppercase", // Optional: Make the text uppercase
-  },
-  placeholder: {
-    color: "#aaa",
-    fontStyle: "italic",
-  },
-});
 
 const emptyPickerItemValue = (
   <Picker.Item

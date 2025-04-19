@@ -13,7 +13,7 @@ import {
   MovimientoGastoGrilla,
   TipoDeMovimientoGasto,
 } from "../../types/general";
-import { ConceptoPicker } from "../Editores/ConceptoPicker";
+import { ConceptoPicker } from "../Editores/ConceptoPicker/ConceptoPicker";
 import { TipoDePago } from "../Editores/TipoDePago";
 import { Monto } from "../Editores/Monto";
 import { obtenerDiasEnElMes } from "@/lib/helpers";
