@@ -12,7 +12,7 @@ import {
   MovimientoAEditar,
   MovimientoGastoGrilla,
   TipoDeMovimientoGasto,
-} from "../../types/general";
+} from "../../../types/general";
 import { ConceptoPicker } from "../Editores/ConceptoPicker/ConceptoPicker";
 import { TipoDePago } from "../Editores/TipoDePago";
 import { Monto } from "../Editores/Monto";

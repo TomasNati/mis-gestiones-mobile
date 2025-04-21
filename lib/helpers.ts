@@ -94,3 +94,23 @@ export const generateUUID = (): string => {
 
   return uuid;
 };
+
+// Helper function to calculate "desde" and "hasta"
+export const calculateDateRange = (date: Date) => {
+  const desde = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-01`;
+
+  const lastDay = new Date(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    0
+  ).getDate();
+  const hasta = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(lastDay).padStart(2, "0")}`;
+
+  return { desde, hasta };
+};

@@ -31,9 +31,13 @@ export type CategoriaUIMovimientoGroup = {
   categorias: CategoriaUIMovimiento[];
 };
 
-export type EstadoUIMovimiento = "deleted" | "updated" | "added";
+export type EstadoUIEntidad = "deleted" | "updated" | "added";
 
-export type MovimientoGastoGrilla = {
+interface EntidadConEstado {
+  state?: EstadoUIEntidad;
+}
+
+export interface MovimientoGastoGrilla extends EntidadConEstado {
   id: string;
   comentarios?: string;
   fecha: Date;
@@ -41,13 +45,30 @@ export type MovimientoGastoGrilla = {
   concepto: CategoriaUIMovimiento;
   tipoDeGasto: TipoDeMovimientoGasto;
   monto: number;
-  state?: EstadoUIMovimiento;
-};
+}
 
 export interface MovimientoAEditar {
   concepto: CategoriaUIMovimiento;
   monto: string;
   tipoDePago: TipoDeMovimientoGasto;
   comentarios: string;
-  dia: number; // Add the selected day
+  dia: number;
+}
+
+export type TipoEventoSuenio = "Despierto" | "Dormido";
+
+export interface EventoSuenio {
+  id: string;
+  hora: string;
+  comentarios?: string;
+  tipo: TipoEventoSuenio;
+  tipoDeActualizacion?: "nuevo" | "modificado" | "eliminado";
+}
+
+export interface AgendaTomiDia extends EntidadConEstado {
+  id: string;
+  fecha: Date;
+  comentarios?: string;
+  eventos: EventoSuenio[];
+  esNuevo?: boolean;
 }

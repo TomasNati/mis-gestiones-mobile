@@ -9,30 +9,11 @@ import {
 import { PersistirMovimientoGasto } from "@/lib/types/api";
 import { API_URL } from "@/lib/constants/Api";
 import { fetch } from "expo/fetch";
-import { FilaMovimiento } from "@/lib/components/FilaMovimiento";
-import { EditarMovimientoModal } from "@/lib/components/EditarMovimiento/EditarMovimiento";
-import { MovimientosHeader } from "@/lib/components/MovimientosHeader";
+import { FilaMovimiento } from "@/lib/components/movimiento/FilaMovimiento/FilaMovimiento";
+import { EditarMovimientoModal } from "@/lib/components/movimiento/EditarMovimiento/EditarMovimiento";
+import { MovimientosHeader } from "@/lib/components/movimiento/MovimientoHeader/MovimientosHeader";
 import { generateUUID } from "@/lib/helpers";
-
-// Helper function to calculate "desde" and "hasta"
-const calculateDateRange = (date: Date) => {
-  const desde = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-01`;
-
-  const lastDay = new Date(
-    date.getFullYear(),
-    date.getMonth() + 1,
-    0
-  ).getDate();
-  const hasta = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}-${String(lastDay).padStart(2, "0")}`;
-
-  return { desde, hasta };
-};
+import { calculateDateRange } from "@/lib/helpers";
 
 const orderarMovimientos = (
   movimientos: MovimientoGastoGrilla[]

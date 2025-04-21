@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TextInput } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { CategoriaUIMovimiento } from "../../../types/general";
+import { CategoriaUIMovimiento } from "../../../../types/general";
 import { styles } from "./ConceptoPicker.styles";
 
 type CategoriasAgrupadas = {

@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { MovimientoGastoGrilla } from "@/lib/types/general";
-import { TipoDePagoVista } from "@/lib/components/TipoDePagoVista";
+import { TipoDePagoVista } from "@/lib/components/movimiento/TipoDePagoVista";
 import { transformNumberToCurrenty } from "@/lib/helpers";
 
 interface MontoColumnProps {
