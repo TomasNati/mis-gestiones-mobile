@@ -29,7 +29,7 @@ export const FilaDia: React.FC<FilaDiaProps> = ({ dia }) => {
         style={[styles.tableRow]}
       >
         <Text style={[styles.tableCell, styles.columnDia]}>
-          {new Date(dia.fecha).getDate()}
+          {new Date(dia.fecha).getUTCDate()}
         </Text>
         <Text style={[styles.tableCell, styles.columnConcepto]}>
           {getDiaDescripcion(dia)}

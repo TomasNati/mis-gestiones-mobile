@@ -55,7 +55,9 @@ export default function Tomi() {
 
   return (
     <View style={styles.container}>
-      <YearMonthPicker onChange={onYearMonthChanged} />
+      <View style={styles.header}>
+        <YearMonthPicker onChange={onYearMonthChanged} />
+      </View>
       {loading ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#0000ff" />
@@ -92,6 +94,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  header: {
+    flexDirection: "row", // Arrange items in a row
+    alignItems: "center", // Center items vertically
+    justifyContent: "space-between", // Space between YearMonthPicker and buttons
+    marginBottom: 16,
+    marginTop: 16,
   },
   tableContainer: {
     flex: 1, // Allow the FlatList to take up remaining space and enable scrolling
