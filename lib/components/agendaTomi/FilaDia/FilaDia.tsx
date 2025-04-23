@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Text, TouchableOpacity } from "react-native";
 import { AgendaTomiDia } from "@/lib/types/general";
 import { styles } from "./FilaDia.styles";
+import CustomLinearProgress from "@/lib/components/LinearProgressBar";
 
 interface FilaDiaProps {
   dia: AgendaTomiDia;
@@ -32,7 +33,8 @@ export const FilaDia: React.FC<FilaDiaProps> = ({ dia }) => {
           {new Date(dia.fecha).getUTCDate()}
         </Text>
         <Text style={[styles.tableCell, styles.columnConcepto]}>
-          {getDiaDescripcion(dia)}
+          {/*getDiaDescripcion(dia)*/}
+          <CustomLinearProgress color="#28749a" progress={0.5} key={dia.id} />
         </Text>
       </TouchableOpacity>
     </>
