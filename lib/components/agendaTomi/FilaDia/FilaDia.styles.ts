@@ -59,4 +59,14 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  bulletItem: {
+    fontSize: 14,
+    marginBottom: 4,
+    color: "#333",
+  },
+  totalMinutes: {
+    fontSize: 14,
+    marginTop: 8,
+    color: "#333",
+  },
 });

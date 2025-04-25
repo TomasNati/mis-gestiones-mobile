@@ -1,58 +1,15 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { minutesToTimeString, timeStringToMinutes } from "@/lib/helpers";
-import { TipoEventoSuenio, EventoSuenio } from "@/lib/types/general";
-import LinearProgressBar from "../../LinearProgressBar";
+import { View, StyleSheet } from "react-native";
+import LinearProgressBar from "../../LInearProgressBar/LinearProgressBar";
+import { ResultSegment } from "../FilaDia/FilaDia";
 
-interface ResultSegment {
-  tipo: TipoEventoSuenio;
-  start: number;
-  end: number;
-  hora: string;
-}
-
-const transformSegments = (
-  segments: EventoSuenio[],
-  estadoSuenioPrevio: TipoEventoSuenio
-): ResultSegment[] => {
-  if (segments.length === 0) return [];
-
-  let start = 0;
-  const result: ResultSegment[] = [];
-
-  segments.forEach((segment, index) => {
-    const end = timeStringToMinutes(segment.hora);
-    result.push({
-      tipo: index === 0 ? estadoSuenioPrevio : segments[index - 1].tipo,
-      start,
-      end,
-      hora: segment.hora.slice(0, 5),
-    });
-    start = end;
-  });
-
-  // Add the last segment
-  result.push({
-    tipo: segments[segments.length - 1].tipo,
-    start,
-    end: timeStringToMinutes("23:59:59") + 1,
-    hora: segments[segments.length - 1].hora.slice(0, 5),
-  });
-
-  return result;
-};
-
-const LinearProgressWithLabel = ({ tipo, start, end, hora }: ResultSegment) => {
-  const showLabel = end < 1440;
-
-  let durationLabel = "";
-  if (tipo === "Dormido") {
-    const durationMinutes = end - start;
-    durationLabel = minutesToTimeString(durationMinutes);
-  }
-
+const LinearProgressWithLabel = ({
+  tipo,
+  start,
+  end,
+  duracion,
+}: ResultSegment) => {
   const progressWidth = ((end - start) / 1440) * 100; // Calculate width as a percentage
-  const progressStart = (start / 1440) * 100; // Calculate start position as a percentage
 
   const radius = 5;
   const borders = {
@@ -70,7 +27,7 @@ const LinearProgressWithLabel = ({ tipo, start, end, hora }: ResultSegment) => {
         <LinearProgressBar
           progress={progressWidth}
           color={tipo === "Despierto" ? "#4caf50" : "#28749a"}
-          textContent={tipo === "Dormido" ? durationLabel : undefined}
+          textContent={tipo === "Dormido" ? duracion : undefined}
         />
       </View>
     </View>
@@ -78,13 +35,10 @@ const LinearProgressWithLabel = ({ tipo, start, end, hora }: ResultSegment) => {
 };
 
 type Props = {
-  data: EventoSuenio[];
-  estadoSuenioPrevio: TipoEventoSuenio;
+  segmentos: ResultSegment[];
 };
 
-const BarraSuenio: React.FC<Props> = ({ data, estadoSuenioPrevio }) => {
-  const segmentos = transformSegments(data, estadoSuenioPrevio);
-
+const BarraSuenio: React.FC<Props> = ({ segmentos }) => {
   return (
     <View style={barraSuenioStyles.container}>
       {segmentos.map((segment, index) => (

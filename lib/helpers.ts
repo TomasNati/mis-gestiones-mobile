@@ -1,3 +1,5 @@
+import { AgendaTomiDia } from "./types/general";
+
 export const months = [
   "Enero",
   "Febrero",
@@ -145,4 +147,17 @@ export const minutesToTimeString = (minutes: number): string => {
     durationRemainingMinutes > 0 ? `${durationRemainingMinutes}m` : ""
   }`;
   return durationLabel;
+};
+
+export const ordenarDias = (
+  dias: AgendaTomiDia[],
+  newerFirst: boolean = true
+): AgendaTomiDia[] => {
+  return dias.sort((a, b) => {
+    const fechaA = new Date(a.fecha);
+    const fechaB = new Date(b.fecha);
+    return newerFirst
+      ? fechaB.getTime() - fechaA.getTime()
+      : fechaA.getTime() - fechaB.getTime();
+  });
 };

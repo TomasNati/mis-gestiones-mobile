@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   FlatList,
 } from "react-native";
-import { calculateDateRange } from "@/lib/helpers";
+import { calculateDateRange, ordenarDias } from "@/lib/helpers";
 import { API_URL } from "@/lib/constants/Api";
 import { fetch } from "expo/fetch";
 import YearMonthPicker from "@/lib/components/YearMonthPicker";
@@ -32,7 +32,8 @@ export default function Tomi() {
         throw new Error("Network response was not ok");
       }
       const dias: AgendaTomiDia[] = await response.json();
-      setDias(dias);
+      const diasOrdenados = ordenarDias(dias);
+      setDias(diasOrdenados);
     } catch (error) {
       console.error(error);
     } finally {
@@ -54,12 +55,12 @@ export default function Tomi() {
   };
 
   const obtenerEstadoSuenioDiaAnterior = (index: number): TipoEventoSuenio => {
-    if (index === 0) {
+    if (index === dias.length - 1) {
       return "Despierto";
     }
-    const diaAnterior = dias[index - 1];
+    const diaAnterior = dias[index + 1];
 
-    return diaAnterior.eventos[diaAnterior.eventos.length - 1]?.tipo;
+    return diaAnterior?.eventos[diaAnterior.eventos.length - 1]?.tipo;
   };
 
   return (
