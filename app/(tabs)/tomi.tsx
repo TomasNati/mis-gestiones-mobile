@@ -1,4 +1,4 @@
-import { AgendaTomiDia } from "@/lib/types/general";
+import { AgendaTomiDia, TipoEventoSuenio } from "@/lib/types/general";
 import { useEffect, useState } from "react";
 import {
   View,
@@ -53,6 +53,15 @@ export default function Tomi() {
     setDesdeDias(newDate);
   };
 
+  const obtenerEstadoSuenioDiaAnterior = (index: number): TipoEventoSuenio => {
+    if (index === 0) {
+      return "Despierto";
+    }
+    const diaAnterior = dias[index - 1];
+
+    return diaAnterior.eventos[diaAnterior.eventos.length - 1]?.tipo;
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -74,8 +83,12 @@ export default function Tomi() {
           <FlatList
             data={dias}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <FilaDia dia={item} onEditDia={() => {}} />
+            renderItem={({ item, index }) => (
+              <FilaDia
+                dia={item}
+                onEditDia={() => {}}
+                estadoPrevioSuenio={obtenerEstadoSuenioDiaAnterior(index)}
+              />
             )}
           />
         </View>

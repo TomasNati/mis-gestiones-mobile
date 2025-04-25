@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { Text, TouchableOpacity } from "react-native";
-import { AgendaTomiDia } from "@/lib/types/general";
+import { AgendaTomiDia, TipoEventoSuenio } from "@/lib/types/general";
 import { styles } from "./FilaDia.styles";
-import CustomLinearProgress from "@/lib/components/LinearProgressBar";
+import BarraSuenio from "../BarraSuenio/BarraSuenio";
 
 interface FilaDiaProps {
   dia: AgendaTomiDia;
   onEditDia: (dia: AgendaTomiDia) => void;
+  estadoPrevioSuenio: TipoEventoSuenio;
 }
 
-export const FilaDia: React.FC<FilaDiaProps> = ({ dia }) => {
+export const FilaDia: React.FC<FilaDiaProps> = ({
+  dia,
+  estadoPrevioSuenio,
+}) => {
   const [expandedRow, setExpandedRow] = useState(false);
 
   const handleRowPress = () => {
@@ -33,8 +37,11 @@ export const FilaDia: React.FC<FilaDiaProps> = ({ dia }) => {
           {new Date(dia.fecha).getUTCDate()}
         </Text>
         <Text style={[styles.tableCell, styles.columnConcepto]}>
-          {/*getDiaDescripcion(dia)*/}
-          <CustomLinearProgress color="#28749a" progress={0.5} key={dia.id} />
+          <BarraSuenio
+            key={dia.id}
+            data={dia.eventos}
+            estadoSuenioPrevio={estadoPrevioSuenio}
+          />
         </Text>
       </TouchableOpacity>
     </>

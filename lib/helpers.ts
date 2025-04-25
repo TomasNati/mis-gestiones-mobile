@@ -114,3 +114,35 @@ export const calculateDateRange = (date: Date) => {
 
   return { desde, hasta };
 };
+
+/**
+ * Converts a time string in the format "HH:MM" to the total number of minutes.
+ *
+ * @param time - The time string to convert, in the format "HH:MM".
+ * @returns The total number of minutes represented by the time string.
+ */
+export const timeStringToMinutes = (time: string): number => {
+  const [hours, minutes, _] = time.split(":").map(Number);
+  return hours * 60 + minutes;
+};
+
+/**
+ * Converts a given number of minutes into a human-readable time string format.
+ *
+ * @param minutes - The total number of minutes to be converted.
+ * @returns A string representing the time in hours and minutes.
+ *
+ * @example
+ * ```typescript
+ * const timeString = minutesToTimeString(125);
+ * console.log(timeString); // "2h 5m"
+ * ```
+ */
+export const minutesToTimeString = (minutes: number): string => {
+  const durationHours = Math.floor(minutes / 60);
+  const durationRemainingMinutes = minutes % 60;
+  const durationLabel = `${durationHours > 0 ? `${durationHours}h ` : ""}${
+    durationRemainingMinutes > 0 ? `${durationRemainingMinutes}m` : ""
+  }`;
+  return durationLabel;
+};
