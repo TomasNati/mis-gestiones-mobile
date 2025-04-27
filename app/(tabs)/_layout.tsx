@@ -23,7 +23,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Finanzas",
+          title: "Home",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons size={28} name="home" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="finanzas"
+        options={{
+          title: "finanzas",
           tabBarIcon: ({ color }) => (
             <MaterialIcons size={28} name="attach-money" color={color} />
           ),

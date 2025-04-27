@@ -1,7 +1,11 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View } from "react-native";
 import LinearProgressBar from "../../LInearProgressBar/LinearProgressBar";
 import { ResultSegment } from "../FilaDia/FilaDia";
+import {
+  barraSuenioStyles,
+  linearProgressBarWithLabelStyles,
+} from "./BarraSuenio.styles";
 
 const LinearProgressWithLabel = ({
   tipo,
@@ -55,42 +59,5 @@ const BarraSuenio: React.FC<Props> = ({ segmentos }) => {
     </View>
   );
 };
-
-const barraSuenioStyles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    width: "100%",
-    height: 30,
-  },
-  segment: {
-    height: "100%",
-  },
-});
-
-const linearProgressBarWithLabelStyles = StyleSheet.create({
-  container: {
-    position: "relative",
-    width: "100%",
-    marginBottom: 16,
-  },
-  progressBarContainer: {
-    width: "100%",
-    height: 22,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 1,
-    overflow: "hidden",
-    position: "relative",
-  },
-  progressBar: {
-    position: "absolute",
-    height: "100%",
-  },
-  label: {
-    position: "absolute",
-    top: -20,
-    fontSize: 12,
-    color: "#000",
-  },
-});
 
 export default BarraSuenio;

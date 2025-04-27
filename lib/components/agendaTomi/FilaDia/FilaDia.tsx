@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import {
   AgendaTomiDia,
   EventoSuenio,
@@ -8,6 +8,7 @@ import {
 import { styles } from "./FilaDia.styles";
 import BarraSuenio from "../BarraSuenio/BarraSuenio";
 import { minutesToTimeString, timeStringToMinutes } from "@/lib/helpers";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export interface ResultSegment {
   tipo: TipoEventoSuenio;
@@ -73,7 +74,7 @@ export const FilaDia: React.FC<FilaDiaProps> = ({
 
   const getDescripcionSegmento = (segmento: ResultSegment) => {
     const eventoType = segmento.tipo === "Despierto" ? "Duerme" : "Despierta";
-    return `${eventoType} - hora: ${segmento.hora}`;
+    return `${eventoType}: ${segmento.hora}`;
   };
 
   // Method to calculate total minutes for a specific tipo
@@ -81,6 +82,33 @@ export const FilaDia: React.FC<FilaDiaProps> = ({
     return segmentos
       .filter((segmento) => segmento.tipo === tipo)
       .reduce((total, segmento) => total + (segmento.end - segmento.start), 0);
+  };
+
+  // Get the first letter of the day in Spanish
+  const getDayDescription = (date: Date): string => {
+    const daysInSpanish = ["D", "L", "M", "X", "J", "V", "S"];
+    const dayIndex = date.getUTCDay(); // Sunday = 0, Monday = 1, etc.
+    const dayNumber = date.getUTCDate(); // Day of the month (1-31)
+    return `${dayNumber} ${daysInSpanish[dayIndex]}`;
+  };
+
+  const handleEditDia = () => {
+    //onEditDia(dia);
+    console.log("Editando día:", dia);
+  };
+  const handleDeleteDia = () => {
+    Alert.alert(
+      "Confirmar Eliminación",
+      "¿Estás seguro de que deseas eliminar este día?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: () => console.log("Día eliminado"),
+        },
+      ]
+    );
   };
 
   const totalDespierto = getTotalMinutesByTipo("Despierto");
@@ -93,9 +121,9 @@ export const FilaDia: React.FC<FilaDiaProps> = ({
         style={[styles.tableRow]}
       >
         <Text style={[styles.tableCell, styles.columnDia]}>
-          {new Date(dia.fecha).getUTCDate()}
+          {getDayDescription(new Date(dia.fecha))}
         </Text>
-        <Text style={[styles.tableCell, styles.columnConcepto]}>
+        <Text style={[styles.tableCell, styles.columnEventos]}>
           <BarraSuenio key={dia.id} segmentos={segmentos} />
         </Text>
       </TouchableOpacity>
@@ -110,20 +138,32 @@ export const FilaDia: React.FC<FilaDiaProps> = ({
             ) : null
           )}
 
+          {/* Total Minutes */}
+          <Text style={styles.totalMinutes}>
+            Total - Despierto: {minutesToTimeString(totalDespierto)} - Dormido:
+            {minutesToTimeString(totalDormido)}
+          </Text>
+
           {/* Dia Comentarios */}
           {dia.comentarios ? (
             <Text style={styles.comentarios}>
               Comentarios: {dia.comentarios}
             </Text>
           ) : null}
-
-          {/* Total Minutes */}
-          <Text style={styles.totalMinutes}>
-            Total Despierto: {minutesToTimeString(totalDespierto)}
-          </Text>
-          <Text style={styles.totalMinutes}>
-            Total Dormido: {minutesToTimeString(totalDormido)}
-          </Text>
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={[styles.editButton, styles.editButtonBackground]}
+              onPress={handleEditDia}
+            >
+              <MaterialIcons name="edit" size={18} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.deleteButton, styles.deleteButtonBackground]}
+              onPress={handleDeleteDia}
+            >
+              <MaterialIcons name="delete" size={18} color="#fff" />
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </>

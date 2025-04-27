@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { styles as tomiStyles } from "@/app/styles/tomi.styles";
 
 export const styles = StyleSheet.create({
   tableRow: {
@@ -15,14 +16,11 @@ export const styles = StyleSheet.create({
     fontSize: 14,
   },
   columnDia: {
-    flex: 1,
+    ...tomiStyles.columnDia,
+    textTransform: "lowercase",
   },
-  columnConcepto: {
-    flex: 5,
-  },
-  columnMonto: {
-    flex: 2.8,
-    textAlign: "right",
+  columnEventos: {
+    ...tomiStyles.columnEventos,
   },
   expandedRow: {
     backgroundColor: "#f9f9f9",

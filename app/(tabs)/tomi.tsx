@@ -1,17 +1,12 @@
 import { AgendaTomiDia, TipoEventoSuenio } from "@/lib/types/general";
 import { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  FlatList,
-} from "react-native";
+import { View, Text, ActivityIndicator, FlatList } from "react-native";
 import { calculateDateRange, ordenarDias } from "@/lib/helpers";
 import { API_URL } from "@/lib/constants/Api";
 import { fetch } from "expo/fetch";
 import YearMonthPicker from "@/lib/components/YearMonthPicker";
 import { FilaDia } from "@/lib/components/agendaTomi/FilaDia/FilaDia";
+import { styles } from "../styles/tomi.styles";
 
 export default function Tomi() {
   const [loading, setLoading] = useState(true);
@@ -97,44 +92,3 @@ export default function Tomi() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  header: {
-    flexDirection: "row", // Arrange items in a row
-    alignItems: "center", // Center items vertically
-    justifyContent: "space-between", // Space between YearMonthPicker and buttons
-    marginBottom: 16,
-    marginTop: 16,
-  },
-  tableContainer: {
-    flex: 1, // Allow the FlatList to take up remaining space and enable scrolling
-  },
-  tableHeader: {
-    flexDirection: "row",
-    backgroundColor: "#f0f0f0",
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  tableHeaderText: {
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-  columnDia: {
-    flex: 1, // Adjust width for category column
-  },
-  columnEventos: {
-    flex: 5,
-  },
-});
