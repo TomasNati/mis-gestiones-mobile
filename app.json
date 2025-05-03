@@ -34,7 +34,9 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
@@ -46,9 +48,6 @@
       "eas": {
         "projectId": "9424fdff-cb19-4b11-82b4-0898393f989f"
       }
-    },
-    "scripts": {
-      "deploy": "eas build --platform android --profile preview"
     }
   }
 }

@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { styles as tomiStyles } from "@/app/styles/tomi.styles";
+import tomiStyles from "@/app/styles/tomi.styles";
 
 export const styles = StyleSheet.create({
   tableRow: {

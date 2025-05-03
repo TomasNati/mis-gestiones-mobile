@@ -35,7 +35,7 @@ const orderarMovimientos = (
   return movimientosOrdenados;
 };
 
-export default function Index() {
+export default function Finanzas() {
   const [loading, setLoading] = useState(true);
   const [desdeMovimientos, setDesdeMovimientos] = useState<Date>(new Date());
   const [movimientos, setMovimientos] = useState<MovimientoGastoGrilla[]>([]);

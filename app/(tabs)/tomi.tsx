@@ -6,12 +6,21 @@ import { API_URL } from "@/lib/constants/Api";
 import { fetch } from "expo/fetch";
 import YearMonthPicker from "@/lib/components/YearMonthPicker";
 import { FilaDia } from "@/lib/components/agendaTomi/FilaDia/FilaDia";
-import { styles } from "../styles/tomi.styles";
+import { EditarDiaModal } from "@/lib/components/agendaTomi/EditarDia/EditarDia";
+import styles from "../styles/tomi.styles";
+
+const diaDefault: AgendaTomiDia = {
+  id: "",
+  fecha: new Date(),
+  eventos: [],
+};
 
 export default function Tomi() {
   const [loading, setLoading] = useState(true);
   const [desdeDias, setDesdeDias] = useState<Date>(new Date());
   const [dias, setDias] = useState<AgendaTomiDia[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedDia, setSelectedDia] = useState<AgendaTomiDia | null>(null);
 
   const refreshDias = async () => {
     setLoading(true);
@@ -58,6 +67,15 @@ export default function Tomi() {
     return diaAnterior?.eventos[diaAnterior.eventos.length - 1]?.tipo;
   };
 
+  const handleEditarDia = (dia: AgendaTomiDia) => {
+    setSelectedDia(dia);
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -82,13 +100,18 @@ export default function Tomi() {
             renderItem={({ item, index }) => (
               <FilaDia
                 dia={item}
-                onEditDia={() => {}}
+                onEditDia={handleEditarDia}
                 estadoPrevioSuenio={obtenerEstadoSuenioDiaAnterior(index)}
               />
             )}
           />
         </View>
       )}
+      <EditarDiaModal
+        visible={isModalVisible}
+        onClose={handleModalClose}
+        dia={selectedDia || diaDefault}
+      />
     </View>
   );
 }

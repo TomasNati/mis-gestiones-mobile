@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import {
   AgendaTomiDia,
   EventoSuenio,
@@ -63,6 +63,7 @@ interface FilaDiaProps {
 export const FilaDia: React.FC<FilaDiaProps> = ({
   dia,
   estadoPrevioSuenio,
+  onEditDia,
 }) => {
   const [expandedRow, setExpandedRow] = useState(false);
 
@@ -93,22 +94,7 @@ export const FilaDia: React.FC<FilaDiaProps> = ({
   };
 
   const handleEditDia = () => {
-    //onEditDia(dia);
-    console.log("Editando día:", dia);
-  };
-  const handleDeleteDia = () => {
-    Alert.alert(
-      "Confirmar Eliminación",
-      "¿Estás seguro de que deseas eliminar este día?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Eliminar",
-          style: "destructive",
-          onPress: () => console.log("Día eliminado"),
-        },
-      ]
-    );
+    onEditDia(dia);
   };
 
   const totalDespierto = getTotalMinutesByTipo("Despierto");
@@ -156,12 +142,6 @@ export const FilaDia: React.FC<FilaDiaProps> = ({
               onPress={handleEditDia}
             >
               <MaterialIcons name="edit" size={18} color="#fff" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.deleteButton, styles.deleteButtonBackground]}
-              onPress={handleDeleteDia}
-            >
-              <MaterialIcons name="delete" size={18} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
