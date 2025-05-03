@@ -1,8 +1,16 @@
 import React from "react";
-import { Modal, View, Text, TextInput, TouchableOpacity } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import { styles } from "./EditarDia.styles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AgendaTomiDia } from "@/lib/types/general";
+import { DormidoDespiertoPicker } from "../DormidoDespiertoPicker/DormidoDespiertoPIcker";
 
 interface AddDiaModalProps {
   onClose: () => void;
@@ -35,6 +43,17 @@ export const EditarDiaModal = ({ visible, onClose, dia }: AddDiaModalProps) => {
         <View style={styles.modalContainer}>
           <Text style={styles.title}>Editar Dia</Text>
 
+          <ScrollView style={styles.scrollContainer}>
+            {/* Render DormidoDespiertoPickers */}
+            {dia.eventos.map((evento) => (
+              <DormidoDespiertoPicker
+                key={evento.id}
+                evento={evento}
+                onEventoChange={() => {}}
+                onDelete={() => {}}
+              />
+            ))}
+          </ScrollView>
           {/* Comentarios Input */}
           <View style={styles.inputContainer}>
             <TextInput
@@ -46,7 +65,6 @@ export const EditarDiaModal = ({ visible, onClose, dia }: AddDiaModalProps) => {
               numberOfLines={4}
             />
           </View>
-
           {/* Buttons */}
           <View style={styles.buttonContainer}>
             {/* Guardar Button */}

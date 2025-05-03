@@ -18,6 +18,11 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
+  scrollContainer: {
+    width: "100%",
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
   title: {
     fontSize: 18,
     fontWeight: "bold",
