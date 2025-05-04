@@ -130,6 +130,7 @@ export default function Tomi() {
       <EditarDiaModal
         visible={isModalVisible}
         onClose={handleModalClose}
+        date={desdeDias}
         diaAEditar={JSON.parse(
           JSON.stringify(selectedDia || { ...diaDefault })
         )}

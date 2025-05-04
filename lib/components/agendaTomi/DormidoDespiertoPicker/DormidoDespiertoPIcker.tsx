@@ -3,6 +3,7 @@ import { View, Text, Switch, TouchableOpacity } from "react-native";
 import { styles } from "./DormidoDespiertoPicker.styles";
 import { EventoSuenio } from "@/lib/types/general";
 import { MaterialIcons } from "@expo/vector-icons";
+import { TimePicker } from "../../TimePicker/TimePicket";
 
 interface DormidoDespiertoPickerProps {
   evento: EventoSuenio;
@@ -26,6 +27,13 @@ export const DormidoDespiertoPicker = ({
 
   return (
     <View style={styles.container}>
+      <TimePicker
+        time={evento.hora}
+        onTimeChange={(time) => {
+          evento.hora = time;
+          onEventoChange(evento);
+        }}
+      />
       <Text style={styles.label}>{isDespierto ? "Despierto" : "Dormido"}</Text>
       <Switch
         trackColor={{ false: "#767577", true: "#81b0ff" }}

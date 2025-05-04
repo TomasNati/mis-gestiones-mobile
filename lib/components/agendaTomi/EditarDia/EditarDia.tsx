@@ -10,24 +10,32 @@ import {
 import { styles } from "./EditarDia.styles";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AgendaTomiDia, EventoSuenio } from "@/lib/types/general";
-import { DormidoDespiertoPicker } from "../DormidoDespiertoPicker/DormidoDespiertoPIcker";
-import { generateUUID } from "@/lib/helpers";
+import { DormidoDespiertoPicker } from "@/lib/components/agendaTomi/DormidoDespiertoPicker/DormidoDespiertoPIcker";
+import { generateUUID, obtenerDiasEnElMes } from "@/lib/helpers";
+import { DiaDelMesPicker } from "@/lib/components/DiaDelMesPicker/DiaDelMesPicker";
 
 interface AddDiaModalProps {
   onClose: () => void;
   visible: boolean;
   diaAEditar: AgendaTomiDia;
+  date: Date;
 }
 
 export const EditarDiaModal = ({
   visible,
   onClose,
   diaAEditar,
+  date,
 }: AddDiaModalProps) => {
-  const [dia, setDia] = useState<AgendaTomiDia>(diaAEditar);
+  const [diaAgenda, setDiaAgenda] = useState<AgendaTomiDia>(diaAEditar);
+  const [dia, setDia] = React.useState<number>(
+    diaAEditar?.fecha ? new Date(diaAEditar.fecha).getDate() : 1
+  );
+
+  const diasEnElMes = obtenerDiasEnElMes(date);
 
   useEffect(() => {
-    setDia(diaAEditar);
+    setDiaAgenda(diaAEditar);
   }, [diaAEditar]);
 
   const handleSave = (add: boolean = true) => {
@@ -39,46 +47,46 @@ export const EditarDiaModal = ({
   };
 
   const onEventoChange = (evento: EventoSuenio) => {
-    const eventoModificado = dia.eventos.find((e) => e.id === evento.id);
+    const eventoModificado = diaAgenda.eventos.find((e) => e.id === evento.id);
     if (eventoModificado) {
       eventoModificado.hora = evento.hora;
       eventoModificado.tipo = evento.tipo;
       if (eventoModificado.tipoDeActualizacion != "nuevo") {
         eventoModificado.tipoDeActualizacion = "modificado";
       }
-      setDia({ ...dia });
+      setDiaAgenda({ ...diaAgenda });
     }
   };
 
   const onAddEvento = () => {
-    const ultimoEvento = dia.eventos[dia.eventos.length - 1];
+    const ultimoEvento = diaAgenda.eventos[diaAgenda.eventos.length - 1];
     const newEvento: EventoSuenio = {
       id: generateUUID(),
       hora: ultimoEvento?.hora || "00:00",
       tipo: ultimoEvento?.tipo === "Dormido" ? "Despierto" : "Dormido",
       tipoDeActualizacion: "nuevo",
     };
-    setDia({ ...dia, eventos: [...dia.eventos, newEvento] });
+    setDiaAgenda({ ...diaAgenda, eventos: [...diaAgenda.eventos, newEvento] });
   };
 
   const onDeleteEvento = (evento: EventoSuenio) => {
-    const eventoAEliminar = dia.eventos.find((e) => e.id === evento.id);
+    const eventoAEliminar = diaAgenda.eventos.find((e) => e.id === evento.id);
     if (!eventoAEliminar) {
       return;
     }
     if (eventoAEliminar.tipoDeActualizacion === "nuevo") {
-      setDia({
-        ...dia,
-        eventos: dia.eventos.filter((e) => e.id !== evento.id),
+      setDiaAgenda({
+        ...diaAgenda,
+        eventos: diaAgenda.eventos.filter((e) => e.id !== evento.id),
       });
       return;
     }
     eventoAEliminar.tipoDeActualizacion = "eliminado";
-    setDia({ ...dia });
+    setDiaAgenda({ ...diaAgenda });
   };
 
   const onComentariosChanged = (comentarios: string) => {
-    setDia({ ...dia, comentarios });
+    setDiaAgenda({ ...diaAgenda, comentarios });
   };
 
   return (
@@ -90,9 +98,17 @@ export const EditarDiaModal = ({
           <TouchableOpacity style={styles.plusButton} onPress={onAddEvento}>
             <MaterialIcons name="add" size={24} color="#FFF" />
           </TouchableOpacity>
+
+          {/* DiaDelMesPicker */}
+          <DiaDelMesPicker
+            dia={dia}
+            diasEnElMes={diasEnElMes}
+            onDiaChange={setDia}
+          />
+
           <ScrollView style={styles.scrollContainer}>
             {/* Render DormidoDespiertoPickers */}
-            {dia.eventos
+            {diaAgenda.eventos
               .filter(
                 ({ tipoDeActualizacion }) => tipoDeActualizacion != "eliminado"
               )
@@ -110,7 +126,7 @@ export const EditarDiaModal = ({
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Comentarios"
-              value={dia.comentarios || ""}
+              value={diaAgenda.comentarios || ""}
               onChangeText={onComentariosChanged}
               multiline={true}
               numberOfLines={4}
