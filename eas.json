@@ -21,5 +21,8 @@
   },
   "submit": {
     "production": {}
+  },
+  "hooks": {
+    "pre-install": "npm ci --force"
   }
 }
