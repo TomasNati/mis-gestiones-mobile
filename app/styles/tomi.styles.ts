@@ -39,6 +39,13 @@ const styles = StyleSheet.create({
   columnEventos: {
     flex: 6,
   },
+  addButtonBackground: {
+    backgroundColor: "#007BFF", // Blue background for the Add button
+    borderRadius: 50, // Make it circular
+    padding: 12, // Add padding around the icon
+    alignItems: "center", // Center the icon
+    justifyContent: "center", // Center the icon
+  },
 });
 
 export default styles;

@@ -1,18 +1,26 @@
 import { AgendaTomiDia, TipoEventoSuenio } from "@/lib/types/general";
 import { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, FlatList } from "react-native";
-import { calculateDateRange, ordenarDias } from "@/lib/helpers";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import { calculateDateRange, generateUUID, ordenarDias } from "@/lib/helpers";
 import { API_URL } from "@/lib/constants/Api";
 import { fetch } from "expo/fetch";
 import YearMonthPicker from "@/lib/components/YearMonthPicker";
 import { FilaDia } from "@/lib/components/agendaTomi/FilaDia/FilaDia";
 import { EditarDiaModal } from "@/lib/components/agendaTomi/EditarDia/EditarDia";
 import styles from "../styles/tomi.styles";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const diaDefault: AgendaTomiDia = {
-  id: "",
+  id: generateUUID(),
   fecha: new Date(),
   eventos: [],
+  esNuevo: true,
 };
 
 export default function Tomi() {
@@ -76,10 +84,22 @@ export default function Tomi() {
     setIsModalVisible(false);
   };
 
+  const onAddMovimiento = () => {
+    setSelectedDia(diaDefault);
+    setIsModalVisible(true);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <YearMonthPicker onChange={onYearMonthChanged} />
+        {/* Add Button */}
+        <TouchableOpacity
+          style={styles.addButtonBackground}
+          onPress={onAddMovimiento}
+        >
+          <MaterialIcons name="add" size={24} color="#fff" />
+        </TouchableOpacity>
       </View>
       {loading ? (
         <View style={styles.center}>
@@ -110,7 +130,9 @@ export default function Tomi() {
       <EditarDiaModal
         visible={isModalVisible}
         onClose={handleModalClose}
-        dia={selectedDia || diaDefault}
+        diaAEditar={JSON.parse(
+          JSON.stringify(selectedDia || { ...diaDefault })
+        )}
       />
     </View>
   );

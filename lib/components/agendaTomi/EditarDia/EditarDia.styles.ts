@@ -68,4 +68,13 @@ export const styles = StyleSheet.create({
   saveButtonBackground: {
     backgroundColor: "#007BFF", // Blue for "Guardar"
   },
+  plusButton: {
+    alignSelf: "flex-start",
+    marginBottom: 8,
+    padding: 8,
+    backgroundColor: "#007BFF",
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

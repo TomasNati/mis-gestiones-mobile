@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, Switch } from "react-native";
+import { View, Text, Switch, TouchableOpacity } from "react-native";
 import { styles } from "./DormidoDespiertoPicker.styles";
 import { EventoSuenio } from "@/lib/types/general";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface DormidoDespiertoPickerProps {
   evento: EventoSuenio;
@@ -32,6 +33,12 @@ export const DormidoDespiertoPicker = ({
         onValueChange={onDormidoDespierdoChange}
         value={isDespierto}
       />
+      <TouchableOpacity
+        style={styles.trashButton}
+        onPress={() => onDelete(evento)}
+      >
+        <MaterialIcons name="delete" size={20} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 };

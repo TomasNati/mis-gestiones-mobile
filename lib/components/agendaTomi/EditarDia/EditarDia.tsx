@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -9,32 +9,76 @@ import {
 } from "react-native";
 import { styles } from "./EditarDia.styles";
 import { MaterialIcons } from "@expo/vector-icons";
-import { AgendaTomiDia } from "@/lib/types/general";
+import { AgendaTomiDia, EventoSuenio } from "@/lib/types/general";
 import { DormidoDespiertoPicker } from "../DormidoDespiertoPicker/DormidoDespiertoPIcker";
+import { generateUUID } from "@/lib/helpers";
 
 interface AddDiaModalProps {
   onClose: () => void;
   visible: boolean;
-  dia: AgendaTomiDia;
+  diaAEditar: AgendaTomiDia;
 }
 
-export const EditarDiaModal = ({ visible, onClose, dia }: AddDiaModalProps) => {
-  const [comentarios, setComentarios] = React.useState<string | null>(
-    dia.comentarios || null
-  );
+export const EditarDiaModal = ({
+  visible,
+  onClose,
+  diaAEditar,
+}: AddDiaModalProps) => {
+  const [dia, setDia] = useState<AgendaTomiDia>(diaAEditar);
 
-  const clearDiaProperties = () => {
-    setComentarios("");
-  };
+  useEffect(() => {
+    setDia(diaAEditar);
+  }, [diaAEditar]);
 
   const handleSave = (add: boolean = true) => {
-    clearDiaProperties();
     onClose();
   };
 
   const handleCancel = () => {
-    clearDiaProperties();
     onClose();
+  };
+
+  const onEventoChange = (evento: EventoSuenio) => {
+    const eventoModificado = dia.eventos.find((e) => e.id === evento.id);
+    if (eventoModificado) {
+      eventoModificado.hora = evento.hora;
+      eventoModificado.tipo = evento.tipo;
+      if (eventoModificado.tipoDeActualizacion != "nuevo") {
+        eventoModificado.tipoDeActualizacion = "modificado";
+      }
+      setDia({ ...dia });
+    }
+  };
+
+  const onAddEvento = () => {
+    const ultimoEvento = dia.eventos[dia.eventos.length - 1];
+    const newEvento: EventoSuenio = {
+      id: generateUUID(),
+      hora: ultimoEvento?.hora || "00:00",
+      tipo: ultimoEvento?.tipo === "Dormido" ? "Despierto" : "Dormido",
+      tipoDeActualizacion: "nuevo",
+    };
+    setDia({ ...dia, eventos: [...dia.eventos, newEvento] });
+  };
+
+  const onDeleteEvento = (evento: EventoSuenio) => {
+    const eventoAEliminar = dia.eventos.find((e) => e.id === evento.id);
+    if (!eventoAEliminar) {
+      return;
+    }
+    if (eventoAEliminar.tipoDeActualizacion === "nuevo") {
+      setDia({
+        ...dia,
+        eventos: dia.eventos.filter((e) => e.id !== evento.id),
+      });
+      return;
+    }
+    eventoAEliminar.tipoDeActualizacion = "eliminado";
+    setDia({ ...dia });
+  };
+
+  const onComentariosChanged = (comentarios: string) => {
+    setDia({ ...dia, comentarios });
   };
 
   return (
@@ -42,25 +86,32 @@ export const EditarDiaModal = ({ visible, onClose, dia }: AddDiaModalProps) => {
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <Text style={styles.title}>Editar Dia</Text>
-
+          {/* Plus Button */}
+          <TouchableOpacity style={styles.plusButton} onPress={onAddEvento}>
+            <MaterialIcons name="add" size={24} color="#FFF" />
+          </TouchableOpacity>
           <ScrollView style={styles.scrollContainer}>
             {/* Render DormidoDespiertoPickers */}
-            {dia.eventos.map((evento) => (
-              <DormidoDespiertoPicker
-                key={evento.id}
-                evento={evento}
-                onEventoChange={() => {}}
-                onDelete={() => {}}
-              />
-            ))}
+            {dia.eventos
+              .filter(
+                ({ tipoDeActualizacion }) => tipoDeActualizacion != "eliminado"
+              )
+              .map((evento) => (
+                <DormidoDespiertoPicker
+                  key={evento.id}
+                  evento={evento}
+                  onEventoChange={onEventoChange}
+                  onDelete={onDeleteEvento}
+                />
+              ))}
           </ScrollView>
           {/* Comentarios Input */}
           <View style={styles.inputContainer}>
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Comentarios"
-              value={comentarios || ""}
-              onChangeText={setComentarios}
+              value={dia.comentarios || ""}
+              onChangeText={onComentariosChanged}
               multiline={true}
               numberOfLines={4}
             />
