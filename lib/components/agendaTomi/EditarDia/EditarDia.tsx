@@ -16,6 +16,7 @@ import { DiaDelMesPicker } from "@/lib/components/DiaDelMesPicker/DiaDelMesPicke
 
 interface AddDiaModalProps {
   onClose: () => void;
+  onSave: (dia: AgendaTomiDia) => void;
   visible: boolean;
   diaAEditar: AgendaTomiDia;
   date: Date;
@@ -24,6 +25,7 @@ interface AddDiaModalProps {
 export const EditarDiaModal = ({
   visible,
   onClose,
+  onSave,
   diaAEditar,
   date,
 }: AddDiaModalProps) => {
@@ -38,8 +40,8 @@ export const EditarDiaModal = ({
     setDiaAgenda(diaAEditar);
   }, [diaAEditar]);
 
-  const handleSave = (add: boolean = true) => {
-    onClose();
+  const handleSave = () => {
+    onSave(diaAgenda);
   };
 
   const handleCancel = () => {
@@ -137,7 +139,7 @@ export const EditarDiaModal = ({
             {/* Guardar Button */}
             <TouchableOpacity
               style={[styles.button, styles.saveButtonBackground]}
-              onPress={() => handleSave(false)}
+              onPress={handleSave}
             >
               <MaterialIcons name="save" size={18} color="#fff" />
               <Text style={styles.buttonText}>Guardar</Text>

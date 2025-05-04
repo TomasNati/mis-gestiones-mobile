@@ -22,13 +22,13 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     }
   }, [time]);
 
-  const onTimeChangeHandler = () => {
-    if (hours.length === 2 && minutes.length === 2) {
-      const hh = parseInt(hours, 10);
-      const mm = parseInt(minutes, 10);
+  const onTimeChangeHandler = (newHours: string, newMinutes: string) => {
+    if (newHours.length === 2 && newMinutes.length === 2) {
+      const hh = parseInt(newHours, 10);
+      const mm = parseInt(newMinutes, 10);
 
       if (hh >= 0 && hh <= 23 && mm >= 0 && mm <= 59) {
-        onTimeChange(`${hours}:${minutes}`);
+        onTimeChange(`${newHours}:${newMinutes}`);
       }
     }
   };
@@ -36,13 +36,13 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   const handleHoursChange = (text: string) => {
     if (/^\d{0,2}$/.test(text)) {
       setHours(text);
-      onTimeChangeHandler();
+      onTimeChangeHandler(text, minutes);
     }
   };
   const handleMinutesChange = (text: string) => {
     if (/^\d{0,2}$/.test(text)) {
       setMinutes(text);
-      onTimeChangeHandler();
+      onTimeChangeHandler(hours, text);
     }
   };
 

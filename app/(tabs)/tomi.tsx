@@ -89,6 +89,28 @@ export default function Tomi() {
     setIsModalVisible(true);
   };
 
+  const handleSave = async (dia: AgendaTomiDia) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/agenda-tomi/dias`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dia),
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      await refreshDias();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+      setIsModalVisible(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -130,6 +152,7 @@ export default function Tomi() {
       <EditarDiaModal
         visible={isModalVisible}
         onClose={handleModalClose}
+        onSave={handleSave}
         date={desdeDias}
         diaAEditar={JSON.parse(
           JSON.stringify(selectedDia || { ...diaDefault })
