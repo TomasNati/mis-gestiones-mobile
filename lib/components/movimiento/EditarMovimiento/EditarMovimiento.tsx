@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Modal,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import { Modal, View, Text, TextInput, TouchableOpacity } from "react-native";
 import {
   CategoriaUIMovimiento,
   MovimientoAEditar,
@@ -17,9 +10,9 @@ import { ConceptoPicker } from "../Editores/ConceptoPicker/ConceptoPicker";
 import { TipoDePago } from "../Editores/TipoDePago";
 import { Monto } from "../Editores/Monto";
 import { obtenerDiasEnElMes } from "@/lib/helpers";
-import { Picker } from "@react-native-picker/picker";
 import { styles } from "./EditarMovimiento.styles";
 import { MaterialIcons } from "@expo/vector-icons";
+import { DiaDelMesPicker } from "@/lib/components/DiaDelMesPicker/DiaDelMesPicker";
 
 const diaDefault = new Date().getDate();
 
@@ -169,17 +162,11 @@ export const EditarMovimientoModal = ({
           {/* Number Picker for Day */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Día del Movimiento</Text>
-            <Picker
-              selectedValue={dia}
-              onValueChange={(itemValue) => setDia(itemValue)}
-              style={styles.picker}
-            >
-              {Array.from({ length: diasEnElMes }, (_, i) => i + 1).map(
-                (day) => (
-                  <Picker.Item key={day} label={day.toString()} value={day} />
-                )
-              )}
-            </Picker>
+            <DiaDelMesPicker
+              dia={dia}
+              diasEnElMes={diasEnElMes}
+              onDiaChange={setDia}
+            />
           </View>
 
           {/* Buttons */}

@@ -1,10 +1,13 @@
 import { StyleSheet } from "react-native";
+import { Colors } from "@/lib/constants/Colors";
 
 export const styles = StyleSheet.create({
   picker: {
-    borderColor: "#007BFF", // Blue border color
-    borderWidth: 2, // Increase border width for visibility
-    borderRadius: 8,
     width: 100,
+    height: 50,
+    borderStyle: "solid",
+    borderWidth: 1,
+    color: Colors.black,
+    backgroundColor: Colors.lightGrey,
   },
 });
