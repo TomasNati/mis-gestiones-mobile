@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-
+import { Colors } from "@/lib/constants/Colors";
 interface YearMonthPickerProps {
   onChange: (year: number, month: number) => void; // Callback to pass selected year and month
 }
@@ -97,8 +97,12 @@ const styles = StyleSheet.create({
   },
   yearPicker: {
     width: 120, // Fixed width for the year picker
+    color: Colors.black,
+    backgroundColor: Colors.lightGrey,
   },
   monthPicker: {
     flex: 1, // Allow the month picker to take up remaining space
+    color: Colors.black,
+    backgroundColor: Colors.lightGrey,
   },
 });

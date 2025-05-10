@@ -1,3 +1,4 @@
+import { Colors } from "@/lib/constants/Colors";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
@@ -17,6 +18,8 @@ export const styles = StyleSheet.create({
   },
   picker: {
     width: "100%",
+    color: Colors.black,
+    backgroundColor: Colors.lightGrey,
   },
   groupHeader: {
     fontWeight: "bold",
